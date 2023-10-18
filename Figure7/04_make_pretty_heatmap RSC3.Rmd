@@ -1,0 +1,179 @@
+---
+title: "make pretty heatmap RSC3"
+author: "Uwe Schwartz"
+date: "25/04/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+work.path<- "/Users//admin//Analysis/R001_nucMacc/manuscript_figures/Fig7/RSCprofiles/RSC3//"
+knitr::opts_knit$set(root.dir =work.path)
+
+```
+
+## Dependencies & Libraries
+
+#### Load packages
+```{r libraries, message=FALSE}
+library(pheatmap)
+library(RColorBrewer)
+library(ggpubr)
+library(stringr)
+```
+
+##Import data
+
+```{r import}
+## load heatmap
+heat.val<-read.delim("values_Heatmap.txt", skip=2)
+
+#shift the colnames correctly
+colnames(heat.val)<-colnames(heat.val)[c(3:ncol(heat.val),1:2)]
+
+```
+
+
+## Analysis
+
+```{r Analysis}
+#get samples from heatmap
+#heatShock
+hs.col<-grep("Rsc3_rep4",colnames(heat.val), value = T)
+#normal
+normal.col<-grep("Rsc3_rep2",colnames(heat.val), value = T)
+
+#unstable
+borders<-as.numeric(str_split_i(grep("bed",colnames(heat.val), value = T),
+                        ".bed.",2))
+#NDR
+NDR.idx<-1:(borders[1])
+#unstable
+unstable.idx<-(borders[1]+1):(borders[1]+borders[2])
+
+
+
+######################### get Profile ######################
+
+## unstable hs
+unstbl.hs<-heat.val[unstable.idx,hs.col]
+colnames(unstbl.hs)<-c("-500", rep(".",49),"TSS", rep(".",48),"500")
+
+## NDR hs
+NDR.hs<-heat.val[NDR.idx,hs.col]
+colnames(NDR.hs)<-c("-500", rep(".",49),"TSS", rep(".",48),"500")
+
+## unstable normal
+unstbl.normal<-heat.val[unstable.idx,normal.col]
+colnames(unstbl.normal)<-c("-500", rep(".",49),"TSS", rep(".",48),"500")
+
+## NDR normal
+NDR.normal<-heat.val[NDR.idx,normal.col]
+colnames(NDR.normal)<-c("-500", rep(".",49),"TSS", rep(".",48),"500")
+
+
+profile.list<-lapply(list("unstable_HS"=unstbl.hs,"NDR_HS"=NDR.hs,
+                          "unstable_normal"=unstbl.normal,
+                          "NDR_normal"=NDR.normal),
+                     function(x) apply(x,2,median))
+
+
+smoothing<-function(y,x=seq(-500+5,500-5,10),span=0.1){
+    loessFkt<-loess(y ~ x, span = span)
+    return(predict(loessFkt)) 
+}
+
+unstbl.hs.smth<-smoothing(y=profile.list[["unstable_HS"]])
+NDR.hs.smth<-smoothing(y=profile.list[["NDR_HS"]])
+unstbl.normal.smth<-smoothing(y=profile.list[["unstable_normal"]])
+NDR.normal.smth<-smoothing(y=profile.list[["NDR_normal"]])
+
+#yRange<-range(c(unstbl.hs.smth,NDR.hs.smth,unstbl.normal.smth, NDR.normal.smth))
+yRange<-range(c(unstbl.hs.smth,NDR.hs.smth))
+
+pdf("profile_HS_RSC3.pdf", width = 4, height=3.5)
+    plot(seq(-500+5,500-5,10), unstbl.hs.smth, type="l", 
+         xlab="distance from +1", ylab = "RSC3 ChIPexo",ylim=c(yRange),
+         lwd=2, main="Heatshock", col="#2166AC")
+    lines(seq(-500+5,500-5,10), NDR.hs.smth, col="#A6761D",
+         lwd=2)
+    #legend("bottomleft",legend = c("unstable","NDR"),
+    #       lwd=2, bty="n", col = c("#2166AC","#A6761D"))
+dev.off()
+
+
+yRange<-range(c(unstbl.normal.smth, NDR.normal.smth))
+
+pdf("profile_normal_RSC3.pdf", width = 4, height=3.5)
+    plot(seq(-500+5,500-5,10), unstbl.normal.smth, type="l", 
+         xlab="distance from +1", ylab = "RSC3 ChIPexo",ylim=c(yRange),
+         lwd=2, main="Normal", col="#2166AC")
+    lines(seq(-500+5,500-5,10), NDR.normal.smth, col="#A6761D",
+         lwd=2)
+    legend("topleft",legend = c("unstable","NDR"),
+           lwd=2, bty="n", col = c("#2166AC","#A6761D"))
+dev.off()
+
+
+
+    
+    
+## heatmap
+#colheat<-colorRampPalette(c(brewer.pal(9,"Greens"),"#00441B","black"))(100)
+colheat<-colorRampPalette(c(brewer.pal(9,"Oranges")[c(1:9,9)],"black"))(100)
+#colheat<-colorRampPalette(c(brewer.pal(9,"Blues")[c(1:9,9)],"black"))(100)
+
+
+
+png("unstable_heatshock.png",res = 700,width = 800, height = 2300)
+    pheatmap(unstbl.hs, scale="none",
+         show_colnames = T, show_rownames = F,
+         breaks=seq(0,11,length.out = 101),
+         color = colheat,
+         cluster_rows = F, cluster_cols = F,
+         na_col = "#FFFFFF")
+dev.off()
+
+png("NDR_heatshock.png",res = 700,width = 800, height = 2300)
+    pheatmap(NDR.hs, scale="none",
+         show_colnames = T, show_rownames = F,
+         breaks=seq(0,11,length.out = 101),
+         color = colheat,
+         cluster_rows = F, cluster_cols = F,
+         na_col = "#FFFFFF")
+dev.off()
+
+
+
+png("unstable_normal.png",res = 700,width = 800, height = 2300)
+    pheatmap(unstbl.normal, scale="none",
+         show_colnames = T, show_rownames = F,
+         breaks=seq(0,11,length.out = 101),
+         color = colheat,
+         cluster_rows = F, cluster_cols = F,
+         na_col = "#FFFFFF")
+dev.off()
+
+png("NDR_normal.png",res = 700,width = 800, height = 2300)
+    pheatmap(NDR.normal, scale="none",
+         show_colnames = T, show_rownames = F,
+         breaks=seq(0,11,length.out = 101),
+         color = colheat,
+         cluster_rows = F, cluster_cols = F,
+         na_col = "#FFFFFF")
+dev.off()
+
+
+
+
+```
+
+
+##Session info
+```{r info}
+sessionInfo()
+```
+
+
+

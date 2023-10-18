@@ -1,0 +1,173 @@
+---
+title: "get histone modifications of called MonoNucs"
+author: "Uwe Schwartz"
+date: "11/1/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+work.path<- "~/Analysis/R001_nucMacc/manuscript_figures/Fig2/HistoneMod/"
+dir.create(work.path, showWarnings = F)
+knitr::opts_knit$set(root.dir =work.path)
+#setwd(work.path)
+```
+
+## Dependencies & Libraries
+
+#### Load packages
+```{r libraries, message=FALSE}
+library(pheatmap)
+library(RColorBrewer)
+library(ggplot2)
+```
+
+##Import data
+###hyper-accessible
+```{r hyper}
+# import deeptools clustering hyper accessible
+mx.hyper.val<-read.delim("galaxy_data/hyper_cl4_heatmap.tabular", skip=3, header = F)
+
+
+#ncol are 20 bins a 50bp for ech histonmod (n=5)
+#nrow are the regions, sorted by cluster
+
+#get names and subset into clusters and histone modification
+mx.hyper.names<-colnames(read.delim("galaxy_data/hyper_cl4_heatmap.tabular",
+                                    skip=2, header = T))
+
+histone.mod<-sapply(strsplit(mx.hyper.names[-(1:4)], split = ".", fixed = T), function(x) x[1])
+cluster<-unlist(sapply(strsplit(mx.hyper.names[(1:4)], split = ".", fixed = T), 
+                function(x) rep(x[1],as.numeric(x[2]))))
+
+#get the mean hist-value of the region
+hyper.hist.list<-list()
+hyper.hist.list[["H3K4me3"]]<-apply(mx.hyper.val[,grep("H3K4me3",histone.mod)],1,mean)
+hyper.hist.list[["H3K4me1"]]<-apply(mx.hyper.val[,grep("H3K4me1",histone.mod)],1,mean)
+hyper.hist.list[["H3K27ac"]]<-apply(mx.hyper.val[,grep("H3K27ac",histone.mod)],1,mean)
+hyper.hist.list[["H3K27me3"]]<-apply(mx.hyper.val[,grep("H3K27me3",histone.mod)],1,mean)
+hyper.hist.list[["H3K9me3"]]<-apply(mx.hyper.val[,grep("H3K9me3",histone.mod)],1,mean)
+
+
+#get mean in cluster
+get_cluster_mean<-function(x) {
+    sapply(split(x, f = factor(cluster)),mean)
+}
+heat.hyper<-sapply(hyper.hist.list,get_cluster_mean)
+
+rownames(heat.hyper)<-paste0(names(table(cluster)) ,
+                            "_",round(table(cluster)/sum(table(cluster))*100),"%")
+
+######## hyper
+
+pheatmap(heat.hyper, cluster_rows = F,cluster_cols = F,
+         breaks = seq(-1,1,length.out = 101),
+         color = colorRampPalette(rev(brewer.pal(n = 11, name =
+                                                     "RdBu")))(100))
+
+
+
+### make pie chart
+
+##hyper
+slices <- c(72, 28)
+
+lbls <- c("active", "repressive")
+pie(slices, labels = lbls, col =c("#FEA22B","#5CB85B") )
+
+
+
+
+```
+```{r checkpoint hyper, eval=FALSE, echo=FALSE }
+pdf("hyper_histone_marks.pdf", width = 3, height = 2)
+    pheatmap(heat.hyper, cluster_rows = F,cluster_cols = F,
+         breaks = seq(-1,1,length.out = 101),
+         color = colorRampPalette(rev(brewer.pal(n = 11, name =
+                                                     "RdBu")))(100))
+dev.off()
+
+pdf("pie_hyper.pdf")
+    pie(slices, labels = NA, col =c("#FEA22B","#5CB85B") )
+dev.off()
+
+```
+
+###hypo-accessible
+```{r hypo}
+# import deeptools clustering hypo accessible
+mx.hypo.val<-read.delim("galaxy_data/hypo_cl4_heatmap.tabular", skip=3, header = F)
+
+
+#ncol are 20 bins a 50bp for ech histonmod (n=5)
+#nrow are the regions, sorted by cluster
+
+#get names and subset into clusters and histone modification
+mx.hypo.names<-colnames(read.delim("galaxy_data/hypo_cl4_heatmap.tabular",
+                                    skip=2, header = T))
+
+histone.mod<-sapply(strsplit(mx.hypo.names[-(1:4)], split = ".", fixed = T), function(x) x[1])
+cluster<-unlist(sapply(strsplit(mx.hypo.names[(1:4)], split = ".", fixed = T), 
+                function(x) rep(x[1],as.numeric(x[2]))))
+
+#get the mean hist-value of the region
+hypo.hist.list<-list()
+hypo.hist.list[["H3K4me3"]]<-apply(mx.hypo.val[,grep("H3K4me3",histone.mod)],1,mean)
+hypo.hist.list[["H3K4me1"]]<-apply(mx.hypo.val[,grep("H3K4me1",histone.mod)],1,mean)
+hypo.hist.list[["H3K27ac"]]<-apply(mx.hypo.val[,grep("H3K27ac",histone.mod)],1,mean)
+hypo.hist.list[["H3K27me3"]]<-apply(mx.hypo.val[,grep("H3K27me3",histone.mod)],1,mean)
+hypo.hist.list[["H3K9me3"]]<-apply(mx.hypo.val[,grep("H3K9me3",histone.mod)],1,mean)
+
+
+#get mean in cluster
+get_cluster_mean<-function(x) {
+    sapply(split(x, f = factor(cluster)),mean)
+}
+heat.hypo<-sapply(hypo.hist.list,get_cluster_mean)
+
+rownames(heat.hypo)<-paste0(names(table(cluster)) ,
+                            "_",round(table(cluster)/sum(table(cluster))*100),"%")
+
+######## hypo
+
+pheatmap(heat.hypo, cluster_rows = F,cluster_cols = F,
+         breaks = seq(-1,1,length.out = 101),
+         color = colorRampPalette(rev(brewer.pal(n = 11, name =
+                                                     "RdBu")))(100))
+
+
+### make pie chart
+
+##hypo
+slices <- c(16, 74)
+
+lbls <- c("active", "repressive")
+pie(slices, labels = lbls, col =c("#FEA22B","#5CB85B") )
+
+
+```
+```{r checkpoint hypo, eval=FALSE, echo=FALSE }
+pdf("hypo_histone_marks.pdf", width = 3, height = 2)
+    pheatmap(heat.hypo, cluster_rows = F,cluster_cols = F,
+         breaks = seq(-1,1,length.out = 101),
+         color = colorRampPalette(rev(brewer.pal(n = 11, name =
+                                                     "RdBu")))(100))
+dev.off()
+
+
+pdf("pie_hypo.pdf")
+    pie(slices, labels = NA, col =c("#FEA22B","#5CB85B") )
+dev.off()
+
+
+```
+
+
+##Session info
+```{r info}
+sessionInfo()
+```
+
+
+

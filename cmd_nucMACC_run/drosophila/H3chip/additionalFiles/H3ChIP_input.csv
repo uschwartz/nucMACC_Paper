@@ -1,0 +1,5 @@
+Sample_Name,path_fwdReads,path_revReads,MNase_U
+H3_1.5U,/Users/admin/Analysis/R001_nucMacc/data/H3/pooled/H3_ChIP_1.5U_1.fastq.gz,/Users/admin/Analysis/R001_nucMacc/data/H3/pooled/H3_ChIP_1.5U_2.fastq.gz,1.5
+H3_6.25U,/Users/admin/Analysis/R001_nucMacc/data/H3/pooled/H3_ChIP_6.25U_1.fastq.gz,/Users/admin/Analysis/R001_nucMacc/data/H3/pooled/H3_ChIP_6.25U_2.fastq.gz,6.25
+H3_25U,/Users/admin/Analysis/R001_nucMacc/data/H3/pooled/H3_ChIP_25U_1.fastq.gz,/Users/admin/Analysis/R001_nucMacc/data/H3/pooled/H3_ChIP_25U_2.fastq.gz,25
+H3_100U,/Users/admin/Analysis/R001_nucMacc/data/H3/pooled/H3_ChIP_100U_1.fastq.gz,/Users/admin/Analysis/R001_nucMacc/data/H3/pooled/H3_ChIP_100U_2.fastq.gz,100

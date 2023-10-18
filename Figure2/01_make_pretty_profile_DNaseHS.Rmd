@@ -1,0 +1,102 @@
+---
+title: "make pretty profile monoNucs DNase"
+author: "Uwe Schwartz"
+date: "03/03/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+work.path<- "~/Analysis/R001_nucMacc/manuscript_figures/Fig2/DNaseHS/"
+knitr::opts_knit$set(root.dir =work.path)
+#setwd(work.path)
+```
+
+## Dependencies & Libraries
+
+#### Load packages
+```{r libraries, message=FALSE}
+
+```
+
+##Import data
+
+```{r import}
+# load profile
+val.mono.DNase<-read.delim("values_Profile_DNaseHS.txt")
+head(val.mono.DNase[,1:5])
+dim(val.mono.DNase)
+
+mx.mono.DNase<-val.mono.DNase[,-c(1:2)]
+
+```
+
+
+## Analysis
+
+```{r  plot}
+
+start.plot<-c(-3000)
+end.plot<-c(3000)
+pos<-seq(start.plot,end.plot,length.out=600)
+
+max.y<-max(mx.mono.DNase[-1,])
+min.y<-min(mx.mono.DNase[-1,])
+
+## loess smoothing
+df<-data.frame(pos, hyperAcc=as.numeric(mx.mono.DNase[2,]),
+               hypoAcc=as.numeric(mx.mono.DNase[3,]))
+
+lo.fit.hyper<-loess(hyperAcc~pos,df,span = 0.3)
+sm.hyper<-predict(lo.fit.hyper, pos)
+
+lo.fit.hypo<-loess(hypoAcc~pos,df,span = 0.3)
+sm.hypo<-predict(lo.fit.hypo, pos)
+
+pdf("profile_DNaseHS_monoNucs.pdf", width = 4, height=4)
+    plot(pos,
+         sm.hyper, 
+         type="l",
+         ylim=c(min.y,max.y),
+         xlab="distance from nucleosome center", 
+         ylab = "DNase-seq signal",
+         lwd=3, main="DNase-seq", col="#1B9E77")
+    lines(pos,
+         sm.hypo,
+         col="#984EA3",lwd=3)
+
+    legend("topright",bty="n",
+               legend = c("hyper-accessible", "hypo-accessible"),
+               col = c("#1B9E77","#984EA3"), lwd=2)
+dev.off()
+
+
+
+    plot(pos,
+         sm.hyper, 
+         type="l",
+         ylim=c(min.y,max.y),
+         xlab="distance from nucleosome center", 
+         ylab = "DNase-seq signal",
+         lwd=3, main="DNase-seq", col="#1B9E77")
+    lines(pos,
+         sm.hypo,
+         col="#984EA3",lwd=3)
+
+    legend("topright",bty="n",
+               legend = c("hyper-accessible", "hypo-accessible"),
+               col = c("#1B9E77","#984EA3"), lwd=2)
+
+```
+
+
+
+
+##Session info
+```{r info}
+sessionInfo()
+```
+
+
+

@@ -1,0 +1,139 @@
+---
+title: "make pretty heatmap subnucs"
+author: "Uwe Schwartz"
+date: "17/03/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+work.path<- "~/Analysis/R001_nucMacc/manuscript_figures/Fig3/ChIP_atlas/profiles/"
+knitr::opts_knit$set(root.dir =work.path)
+#setwd(work.path)
+```
+
+## Dependencies & Libraries
+
+#### Load packages
+```{r libraries, message=FALSE}
+library(pheatmap)
+library(RColorBrewer)
+```
+
+##Import data
+
+```{r import}
+peaks<-read.delim(file="../../../Fig2/ChIP_atlas/data/M1BP/GSE101554_S2_M1BP_ChIP_peaks.bed",
+                  header=F)
+
+head(peaks)
+rownames(peaks)<-paste(paste(peaks$V1,peaks$V2, sep=":"),peaks$V3,sep="-")
+peaks.sort<-peaks[order(peaks$V5, decreasing = T),]
+
+
+### load gene sorting of heatmap
+heatmap.list<-read.delim("M1BP/sortedRegions_Heatmap_subnucMACCscore.txt")
+head(heatmap.list)
+
+
+heat.sorted.na<-heatmap.list[match(rownames(peaks.sort),
+                         as.character(heatmap.list$name)),]
+#remove NAs
+table(is.na(match(rownames(peaks.sort),
+                         as.character(heatmap.list$name))))
+
+heat.sorted<-heat.sorted.na[!is.na(match(rownames(peaks.sort),
+                         as.character(heatmap.list$name))),]
+
+head(heat.sorted)
+
+
+## load heatmap
+heat.val<-read.delim("M1BP/values_Heatmap_subnucMACCscores.txt", skip=2)
+row.names(heat.val)<-as.character(heatmap.list$name)
+
+heat.val.sort<-heat.val[as.character(heat.sorted$name),]
+
+head(heat.val.sort[,1:10])
+
+```
+
+
+## Analysis
+
+```{r Analysis}
+#get samples from heatmap
+#sub.nucMACC
+scores.subnucMACC.col<-grep("sub.nucMACC_scores",colnames(heat.val.sort), value = T)
+
+######################### get Profile ######################
+
+##  nucMACC
+heat.sub<-heat.val.sort[,scores.subnucMACC.col[50:249]]
+colnames(heat.sub)<-c("- 1 kb", rep(".",99),"center", rep(".",98),"+ 1 kb")
+
+profile.heat<-apply(heat.sub,2,function(x) mean(x,na.rm = T))
+
+
+## loess smoothing
+smoothData<-function(pos=pos,profile){
+    df<-data.frame(pos, profile=as.numeric(profile))
+
+    lo.fit<-loess(profile~pos,df,span = 0.15)
+    sm<-predict(lo.fit, pos)
+    return(sm)
+}
+
+pdf("M1BP/profile_sub-nucMACC_scores.pdf", width = 4, height=3)
+    plot(seq(-1000,1000-10,10)+5, 
+         smoothData(seq(-1000,1000-10,10)+5, profile.heat),
+         type="l", 
+         xlab="distance from peak center", ylab = "sub-nucMACC score",
+         lwd=2, main="M1BP", col="#1B9E77")
+   
+dev.off()
+
+
+
+## heatmap
+colsubMACC<-colorRampPalette(c("#2166AC","#FFFFFF","#B2182B"))(100)
+
+
+
+pheatmap(heat.sub[1:1000,], scale="none",
+         breaks=seq(-0.3,0.3,length.out = 101),
+         show_colnames = T, show_rownames = F,
+         cluster_rows = F, cluster_cols = F,
+          color = colsubMACC,
+         na_col = "#FFFFFF")
+dev.off()
+
+
+
+
+png("M1BP/subnucMACCscores_heatmap_sorted.png",res = 700, width = 1000, height = 1000)
+    
+    pheatmap(heat.sub, scale="none",
+         breaks=seq(-0.2,0.2,length.out = 101),
+         show_colnames = T, show_rownames = F,
+         color = colsubMACC,
+         cluster_rows = F, cluster_cols = F,
+         na_col = "#FFFFFF")
+    
+dev.off()
+
+peaks[row.names(heat.sub),]
+
+
+
+```
+
+
+##Session info
+```{r info}
+sessionInfo()
+```
+
+
+

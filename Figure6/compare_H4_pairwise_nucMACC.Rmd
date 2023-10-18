@@ -1,0 +1,110 @@
+---
+title: "compare_nucMACC_pairwiseCalling"
+author: "Uwe Schwartz"
+date: "04/08/2023"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+work.path<- "~/Analysis/R001_nucMacc//"
+knitr::opts_knit$set(root.dir =work.path)
+#setwd(work.path)
+```
+
+## get Data
+```{r getData and packages}
+library(GenomicRanges)
+library(LSD)
+library(stringr)
+
+h4.table<-read.delim("H4_ChIP_v2.1_featureCOUNTS/RUN/09_nucMACC/nucMACC_result_table.tsv")
+
+head(h4.table)
+
+all.files<-list.files("manuscript_figures/Fig5/pairwise/", pattern="nucMACC_result_table.tsv",
+        recursive = T)
+
+nucMACC.files<-grep("09_nucMACC",all.files, value = T)
+
+
+
+pairs<-list()
+
+for(i in nucMACC.files){
+    name.pair<-str_split_i(i, "/",1)
+    pairs[[name.pair]]<-read.delim(paste0("manuscript_figures/Fig5/pairwise/",i))
+}
+
+```
+
+## comnpare nucMACC values
+
+first convert to GRanges
+
+```{r compare}
+
+h4.gr<-GRanges(h4.table)
+
+for(i in names(pairs)){
+    pair.gr<-GRanges(pairs[[i]])
+    ovrlp<-findOverlaps(h4.gr, pair.gr, minoverlap = 100 )
+    
+    h4.ovrl<-h4.gr[ovrlp@from]
+    pair.ovrl<-pair.gr[ovrlp@to]
+    
+png(paste0("manuscript_figures/Fig5/pairwise/H4_nucMACC_vs_",i,"_nuMACC.png"), width = 1280, height = 1280, res =300 )    
+    heatscatter(h4.ovrl$nucMACC, 
+            pair.ovrl$nucMACC,
+            cor=T,cexplot=0.5, ylab=paste(i, "nucMACC scores"),
+            xlab="H4 nucMACC scores")
+dev.off()
+
+}
+
+
+
+```
+
+
+## subnucMACC
+
+```{r subnucMACC}
+
+sub.h4.table<-read.delim("H4_ChIP_v2.1_featureCOUNTS/RUN/10_sub-nucMACC/sub-nucMACC_result_table.tsv")
+
+
+
+
+sub.nucMACC.files<-grep("10_sub-nucMACC",all.files, value = T)
+
+pairs<-list()
+
+for(i in sub.nucMACC.files){
+    name.pair<-str_split_i(i, "/",1)
+    pairs[[name.pair]]<-read.delim(paste0("manuscript_figures/Fig5/pairwise/",i))
+}
+
+sub.h4.gr<-GRanges(sub.h4.table)
+
+
+for(i in names(pairs)){
+    pair.gr<-GRanges(pairs[[i]])
+    ovrlp<-findOverlaps(sub.h4.gr, pair.gr, minoverlap = 100 )
+    
+    h4.ovrl<-sub.h4.gr[ovrlp@from]
+    pair.ovrl<-pair.gr[ovrlp@to]
+    
+png(paste0("manuscript_figures/Fig5/pairwise/H4_sub-nucMACC_vs_",i,"_sub-nuMACC.png"), width = 1280, height = 1280, res =300 )    
+    heatscatter(h4.ovrl$sub.nucMACC, 
+            pair.ovrl$sub.nucMACC,
+            cor=T,cexplot=0.5, ylab=paste(i, "sub-nucMACC scores"),
+            xlab="H4 sub-nucMACC scores")
+dev.off()
+
+}
+
+```
+

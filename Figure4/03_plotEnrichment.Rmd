@@ -1,0 +1,66 @@
+---
+title: "Plot Enrichment"
+author: "Uwe Schwartz"
+date: "27/01/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+work.path<- "~/Analysis/R001_nucMacc/manuscript_figures/Fig4/metascape/"
+knitr::opts_knit$set(root.dir =work.path)
+```
+
+
+## Dependencies & Libraries
+
+#### Load packages
+```{r libraries, message=FALSE}
+library(ggplot2)
+library(stringr)
+```
+
+```{r code}
+res<-read.csv2("all.costum_minGene20_noBg/metascape_result.csv")
+
+# select groups
+
+slct.res<-res[match(c("GO:0048584","GO:0009791","GO:0000902","GO:0051128","GO:0000278",
+  "GO:0008104", "GO:0048732", "GO:0050793", "GO:0009894","GO:0007389"),res$Term),]
+
+
+slct.res$NumberOfGenes<-as.numeric(str_split_i(slct.res$InTerm_InList,"/",1))
+
+slct.res$Description<-factor(slct.res$Description, 
+         levels = slct.res$Description[order(slct.res$Log.q.value.,slct.res$LogP, 
+                                             decreasing = T)])
+
+
+g<-ggplot(slct.res, aes((-Log.q.value.),Description, color=(-Log.q.value.),
+               size=NumberOfGenes))+
+    geom_point()+theme_bw()+
+    scale_color_gradient(low="blue", high="red",
+                         name = "-log(FDR)")
+
+print(g)
+
+pdf("bubblePlot_Enrichment.pdf", width=6.5, height=3)
+    print(g)
+dev.off()
+
+```
+
+
+```{r save tables, eval=FALSE, echo=FALSE }
+
+```
+
+
+
+##Session info
+```{r info}
+sessionInfo()
+
+
+```

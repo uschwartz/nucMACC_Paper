@@ -1,0 +1,133 @@
+---
+title: "make pretty profile monoNucs TSS"
+author: "Uwe Schwartz"
+date: "06/12/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+work.path<- "/Volumes/admin//Analysis/R001_nucMacc/manuscript_figures/Fig1/profiles/monoNucs_TSS_profile//"
+knitr::opts_knit$set(root.dir =work.path)
+#setwd(work.path)
+```
+
+## Dependencies & Libraries
+
+#### Load packages
+```{r libraries, message=FALSE}
+library(pheatmap)
+library(RColorBrewer)
+library(ggpubr)
+```
+
+##Import data
+
+```{r import}
+# load profile
+heat.val.h4<-read.delim("values_Profile_H4.txt")
+head(heat.val.h4[,1:5])
+
+# load profile
+heat.val.h3<-read.delim("values_Profile_H3.txt")
+head(heat.val.h3[,1:5])
+
+```
+
+
+## Analysis
+
+```{r H4 Analysis}
+#get conditions from profile
+H4.1.5<-grep("1.5U",heat.val.h4$bin.labels, value = T)
+H4.100<-grep("100U",heat.val.h4$bin.labels, value = T)
+H4.25<-grep("_25U",heat.val.h4$bin.labels, value = T)
+H4.6.25<-grep("_6.25U",heat.val.h4$bin.labels, value = T)
+
+row.names(heat.val.h4)<-as.character(heat.val.h4$bin.labels)
+
+TSS.pos<-which(colnames(heat.val.h4)=="tick")
+
+start.plot<-c(-1250)
+end.plot<-c(1500)
+pos<-seq(start.plot,end.plot,10)
+
+profile.index<- (TSS.pos+start.plot/10):(TSS.pos+end.plot/10)
+
+pdf("profile_H4_monoNucs.pdf", width = 5, height=4)
+    par(mar=c(5.1, 4.1, 4.1, 7.1))
+    plot(pos,
+         heat.val.h4[H4.1.5,profile.index ], 
+         type="l", 
+         xlab="distance from TSS", ylab = "MNase fragment density",
+         lwd=2, main="H4 mono-nucs", col="#6E016B", ylim=c(40,250))
+    lines(pos,
+         heat.val.h4[H4.6.25, profile.index],
+         col="#896BB1",lwd=2)
+    lines(pos,
+         heat.val.h4[H4.25, profile.index],
+         col="#9EBCDA",lwd=2)
+    lines(pos,
+         heat.val.h4[H4.100, profile.index],
+         col="#D2E6E6",lwd=2)
+    legend("topright",bty="n",
+               legend = c("1.5U", "6.25U", "25U", "100U"),
+               col = c("#6E016B","#896BB1", "#9EBCDA", "#D2E6E6"), lwd=2,
+               inset=c(-0.5,0), xpd=TRUE)
+dev.off()
+
+
+```
+```{r H3 Analysis}
+#get conditions from profile
+H3.1.5<-grep("1.5U",heat.val.h3$bin.labels, value = T)
+H3.100<-grep("100U",heat.val.h3$bin.labels, value = T)
+H3.25<-grep("_25U",heat.val.h3$bin.labels, value = T)
+H3.6.25<-grep("_6.25U",heat.val.h3$bin.labels, value = T)
+
+row.names(heat.val.h3)<-as.character(heat.val.h3$bin.labels)
+
+#prepare plot
+TSS.pos<-which(colnames(heat.val.h3)=="tick")
+
+start.plot<-c(-1250)
+end.plot<-c(1500)
+pos<-seq(start.plot,end.plot,10)
+
+profile.index<- (TSS.pos+start.plot/10):(TSS.pos+end.plot/10)
+
+pdf("profile_H3_monoNucs.pdf", width = 5, height=4)
+    par(mar=c(5.1, 4.1, 4.1, 7.1))
+    plot(pos,
+         heat.val.h3[H3.1.5,profile.index ], 
+         type="l", 
+         xlab="distance from TSS", ylab = "MNase fragment density",
+         lwd=2, main="H3 mono-nucs", col="#6E016B", ylim=c(40,250))
+    lines(pos,
+         heat.val.h3[H3.6.25, profile.index],
+         col="#896BB1",lwd=2)
+    lines(pos,
+         heat.val.h3[H3.25, profile.index],
+         col="#9EBCDA",lwd=2)
+    lines(pos,
+         heat.val.h3[H3.100, profile.index],
+         col="#D2E6E6",lwd=2)
+    legend("topright",bty="n",
+               legend = c("1.5U", "6.25U", "25U", "100U"),
+               col = c("#6E016B","#896BB1", "#9EBCDA", "#D2E6E6"), lwd=2,
+               inset=c(-0.5,0), xpd=TRUE)
+dev.off()
+
+
+```
+
+
+
+##Session info
+```{r info}
+sessionInfo()
+```
+
+
+

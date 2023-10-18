@@ -1,0 +1,101 @@
+---
+title: "correlate nucMACC and sub-nucMACC with MACC"
+author: "Uwe Schwartz"
+date: "07/12/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+work.path<- "~/Analysis/"
+knitr::opts_knit$set(root.dir =work.path)
+#setwd(work.path)
+```
+
+## Dependencies & Libraries
+
+#### Load packages
+```{r libraries, message=FALSE}
+library(rtracklayer)
+library(LSD)
+library(VennDiagram)
+
+dark2 <- c(RColorBrewer::brewer.pal(8, "Dark2"))
+```
+
+##Import data
+
+```{r import monoNucs}
+##nucMACCs wc
+nucmacc.wc <-import.bedGraph("Drosophila_wc/nucMACC_results/RUN/05_nucMACC/nucMACC_scores.bedgraph")
+
+## nucMACCs H4
+nucmacc.h4<-import.bedGraph("Drosophila_ChIP/H4_ChIP/results/RUN/09_nucMACC/nucMACC_scores.bedgraph")
+
+ovrlps<-findOverlaps(nucmacc.h4, nucmacc.wc, minoverlap = 100)
+
+nucmacc.H4.score<-nucmacc.h4[ovrlps@from]$score
+nucmacc.wc.score<-nucmacc.wc[ovrlps@to]$score
+
+#Venn Diagram with number of nucMACC scores
+                             
+pdf("Drosophila_wc/scripts/Rscripts/Figures/Compare_wc_H4/nucMACC_Venn.pdf", width = 6, height = 5)
+  print(draw.pairwise.venn(area1=length(nucmacc.wc),area2=length(nucmacc.h4),cross.area=length(nucmacc.H4.score),category=c("nucMACC\nwc","nucMACC\nH4 ChIP"),fill=c(dark2[1],dark2[2])))
+dev.off()
+
+# Heatmap WC vs H4
+png("Drosophila_wc/scripts/Rscripts/Figures/Compare_wc_H4/H4_nucMACC_vs_WC_nucMACC.png", width = 1280, height = 1280, res =300 )
+    heatscatter(nucmacc.H4.score,nucmacc.wc.score,cor=T,
+                 cexplot = 0.3,xlab = "nucMACC.H4", ylab="nucMACC.wc")
+dev.off()
+
+##subnucMACCs wc
+subnucmacc.wc <-import.bedGraph("Drosophila_wc/nucMACC_results/RUN/06_sub-nucMACC/sub-nucMACC_scores.bedgraph")
+
+## subnucMACCs H4
+
+subnucmacc.h4<-import.bedGraph("Drosophila_ChIP/H4_ChIP/results/RUN/10_sub-nucMACC/sub-nucMACC_scores.bedgraph")
+
+ovrlps.sub<-findOverlaps(subnucmacc.h4,subnucmacc.wc, minoverlap = 100)
+
+sub.nucmacc.score<-subnucmacc.h4[ovrlps.sub@from]$score
+sub.nucmacc.h4.score<-subnucmacc.wc[ovrlps.sub@to]$score
+
+#Venn Diagram with number of sub nucMACC scores
+pdf("Drosophila_wc/scripts/Rscripts/Figures/Compare_wc_H4/subnucMACC_Venn.pdf", width = 6, height = 5)
+  print(draw.pairwise.venn(area1=length(subnucmacc.h4),area2=length(subnucmacc.wc),cross.area=length(sub.nucmacc.h4.score),category=c("subnucMACC\nH4 ChIP", "subnucMACC\nwc"),fill=c(dark2[1],dark2[2])))
+dev.off()
+
+
+png("Drosophila_wc/scripts/Rscripts/Figures/Compare_wc_H4/H4_sub-nucMACC_vs_WC_sub-MACC.png", width = 1280, height = 1280, res =300 )
+    heatscatter(sub.nucmacc.score,sub.nucmacc.h4.score,cor=T,
+            xlab = "sub-nucMACC.H4", ylab="sub-nucMACC.WC", cexplot = 0.3)
+dev.off()
+
+
+########
+ovrlps.split<-findOverlaps(subnucmacc.wc,nucmacc.wc, minoverlap = 100)
+
+sub.nucmacc.score.nuc<-subnucmacc.wc[ovrlps.split@from]$score
+nuc.macc.score.sub<-nucmacc.wc[ovrlps.split@to]$score
+
+#Venn Diagram with number of wc nucMACC and wc subnucMACC
+pdf("Drosophila_wc/scripts/Rscripts/Figures/Compare_wc_H4/wc_Venn.pdf", width = 6, height = 5)
+  print(draw.pairwise.venn(area1=length(nucmacc.wc),area2=length(subnucmacc.wc),cross.area=length(sub.nucmacc.score.nuc),category=c("nucMACC\nwc","subnucMACC\nwc"),fill=c(dark2[1],dark2[2])))
+dev.off()
+
+png("Drosophila_wc/scripts/Rscripts/Figures/Compare_wc_H4/WC_sub-nucMACC_vs_WC_nucMACC.png", width = 1280, height = 1280, res =300 )
+    heatscatter(sub.nucmacc.score.nuc,nuc.macc.score.sub,cor=T,
+            xlab = "sub-nucMACC.WC", ylab="nucMACC.WC", cexplot = 0.3)
+dev.off()
+```
+
+
+##Session info
+```{r info}
+sessionInfo()
+```
+
+
+

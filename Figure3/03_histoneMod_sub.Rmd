@@ -1,0 +1,173 @@
+---
+title: "get histone modifications of called subNucs"
+author: "Uwe Schwartz"
+date: "11/1/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+work.path<- "~/Analysis/R001_nucMacc/manuscript_figures/Fig3/HistoneMod/"
+dir.create(work.path, showWarnings = F)
+knitr::opts_knit$set(root.dir =work.path)
+#setwd(work.path)
+```
+
+## Dependencies & Libraries
+
+#### Load packages
+```{r libraries, message=FALSE}
+library(pheatmap)
+library(RColorBrewer)
+library(ggplot2)
+```
+
+##Import data
+###unstable
+```{r unstable}
+# import deeptools clustering unstableaccessible
+mx.unstable.val<-read.delim("galaxy_data/unStable_cl5_heatmap.tabular",
+                         skip=3, header = F)
+
+
+#ncol are 20 bins a 50bp for ech histonmod (n=5)
+#nrow are the regions, sorted by cluster
+
+#get names and subset into clusters and histone modification
+mx.unstable.names<-colnames(read.delim("galaxy_data/unStable_cl5_heatmap.tabular",
+                                    skip=2, header = T))
+
+histone.mod<-sapply(strsplit(mx.unstable.names[-(1:5)], split = ".", fixed = T), function(x) x[1])
+cluster<-unlist(sapply(strsplit(mx.unstable.names[(1:5)], split = ".", fixed = T), 
+                function(x) rep(x[1],as.numeric(x[2]))))
+
+#get the mean hist-value of the region
+unstable.hist.list<-list()
+unstable.hist.list[["H3K4me3"]]<-apply(mx.unstable.val[,grep("H3K4me3",histone.mod)],1,mean)
+unstable.hist.list[["H3K4me1"]]<-apply(mx.unstable.val[,grep("H3K4me1",histone.mod)],1,mean)
+unstable.hist.list[["H3K27ac"]]<-apply(mx.unstable.val[,grep("H3K27ac",histone.mod)],1,mean)
+unstable.hist.list[["H3K27me3"]]<-apply(mx.unstable.val[,grep("H3K27me3",histone.mod)],1,mean)
+unstable.hist.list[["H3K9me3"]]<-apply(mx.unstable.val[,grep("H3K9me3",histone.mod)],1,mean)
+
+
+#get mean in cluster
+get_cluster_mean<-function(x) {
+    sapply(split(x, f = factor(cluster)),mean)
+}
+heat.unstable<-sapply(unstable.hist.list,get_cluster_mean)
+
+rownames(heat.unstable)<-paste0(names(table(cluster)) ,
+                            "_",round(table(cluster)/sum(table(cluster))*100),"%")
+
+######## unstable
+
+pheatmap(heat.unstable, cluster_rows = F,cluster_cols = F,
+         breaks = seq(-1,1,length.out = 101),
+         color = colorRampPalette(rev(brewer.pal(n = 11, name =
+                                                     "RdBu")))(100))
+
+
+
+### make pie chart
+
+##unstable
+slices <- c((17+41+25), 11,7)
+
+lbls <- c("active", "repressive", "bivalent")
+pie(slices, labels = lbls, col =c("#FEA22B","#5CB85B","#8E8E8D") )
+
+
+
+```
+
+
+```{r checkpoint unstable, eval=FALSE, echo=FALSE }
+pdf("unstable_histone_marks.pdf", width = 3, height = 2)
+    pheatmap(heat.unstable, cluster_rows = F,cluster_cols = F,
+         breaks = seq(-1,1,length.out = 101),
+         color = colorRampPalette(rev(brewer.pal(n = 11, name =
+                                                     "RdBu")))(100))
+dev.off()
+
+pdf("pie_unstable.pdf")
+    pie(slices, labels = NA, col =c("#FEA22B","#5CB85B","#8E8E8D") )
+dev.off()
+
+```
+
+###non-canonical
+```{r nonCanonical}
+# import deeptools clustering noncanonical accessible
+mx.noncanonical.val<-read.delim("galaxy_data/nonCan_cl5_heatmap.tabular", skip=3, header = F)
+
+#ncol are 20 bins a 50bp for ech histonmod (n=5)
+#nrow are the regions, sorted by cluster
+
+#get names and subset into clusters and histone modification
+mx.noncanonical.names<-colnames(read.delim("galaxy_data/nonCan_cl5_heatmap.tabular",
+                                    skip=2, header = T))
+
+histone.mod<-sapply(strsplit(mx.noncanonical.names[-(1:5)], split = ".", fixed = T), function(x) x[1])
+cluster<-unlist(sapply(strsplit(mx.noncanonical.names[(1:5)], split = ".", fixed = T), 
+                function(x) rep(x[1],as.numeric(x[2]))))
+
+#get the mean hist-value of the region
+noncanonical.hist.list<-list()
+noncanonical.hist.list[["H3K4me3"]]<-apply(mx.noncanonical.val[,grep("H3K4me3",histone.mod)],1,mean)
+noncanonical.hist.list[["H3K4me1"]]<-apply(mx.noncanonical.val[,grep("H3K4me1",histone.mod)],1,mean)
+noncanonical.hist.list[["H3K27ac"]]<-apply(mx.noncanonical.val[,grep("H3K27ac",histone.mod)],1,mean)
+noncanonical.hist.list[["H3K27me3"]]<-apply(mx.noncanonical.val[,grep("H3K27me3",histone.mod)],1,mean)
+noncanonical.hist.list[["H3K9me3"]]<-apply(mx.noncanonical.val[,grep("H3K9me3",histone.mod)],1,mean)
+
+
+#get mean in cluster
+get_cluster_mean<-function(x) {
+    sapply(split(x, f = factor(cluster)),mean)
+}
+heat.noncanonical<-sapply(noncanonical.hist.list,get_cluster_mean)
+
+rownames(heat.noncanonical)<-paste0(names(table(cluster)) ,
+                            "_",round(table(cluster)/sum(table(cluster))*100),"%")
+
+######## noncanonical
+
+pheatmap(heat.noncanonical, cluster_rows = F,cluster_cols = F,
+         breaks = seq(-1,1,length.out = 101),
+         color = colorRampPalette(rev(brewer.pal(n = 11, name =
+                                                     "RdBu")))(100))
+
+### make pie chart
+
+##noncanonical
+slices <- c(20, 80)
+
+lbls <- c("active", "repressive")
+pie(slices, labels = lbls, col =c("#FEA22B","#5CB85B") )
+
+
+```
+```{r checkpoint noncanonical, eval=FALSE, echo=FALSE }
+pdf("noncanonical_histone_marks.pdf", width = 3, height = 2)
+    pheatmap(heat.noncanonical, cluster_rows = F,cluster_cols = F,
+         breaks = seq(-1,1,length.out = 101),
+         color = colorRampPalette(rev(brewer.pal(n = 11, name =
+                                                     "RdBu")))(100))
+dev.off()
+
+
+pdf("pie_noncanonical.pdf")
+    pie(slices, labels = NA, col =c("#FEA22B","#5CB85B") )
+dev.off()
+
+
+```
+
+
+##Session info
+```{r info}
+sessionInfo()
+```
+
+
+

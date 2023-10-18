@@ -1,0 +1,66 @@
+---
+title: "02_compare_nucMACC"
+author: "Uwe Schwartz"
+date: "02/12/2021"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+work.path<- "~/Analysis/R001_nucMacc//"
+knitr::opts_knit$set(root.dir =work.path)
+#setwd(work.path)
+```
+
+## get Data
+```{r getData and packages}
+library(GenomicRanges)
+library(LSD)
+
+h3.table<-read.delim("H3_ChIP_v2_featureCOUNTS//RUN/09_nucMACC/nucMACC_result_table.tsv")
+h4.table<-read.delim("H4_ChIP_v2.1_featureCOUNTS/RUN/09_nucMACC/nucMACC_result_table.tsv")
+
+head(h4.table)
+
+```
+
+## comnpare nucMACC values
+
+first convert to GRanges
+
+```{r compare}
+h3.gr<-GRanges(h3.table)
+h4.gr<-GRanges(h4.table)
+
+ovrlp<-findOverlaps(h4.gr, h3.gr, minoverlap = 100 )
+
+h4.ovrl<-h4.gr[ovrlp@from]
+h3.ovrl<-h3.gr[ovrlp@to]
+
+
+
+
+heatscatter(h4.ovrl$nucMACC, 
+            h3.ovrl$nucMACC,
+            cor=T,cexplot=0.5, ylab="H3 nucMACC scores",
+            xlab="H4 nucMACC scores")
+
+
+
+## just called ones
+idx<-!(as.character(h3.ovrl$category)=="normal" &
+           as.character(h4.ovrl$category)=="normal")
+
+
+heatscatter(h4.ovrl$nucMACC[idx], 
+            h3.ovrl$nucMACC[idx],
+            cor=T,cexplot=0.5, ylab="rep3 nucMACC scores",
+            xlab="rep2 nucMACC scores")
+
+
+
+
+
+```

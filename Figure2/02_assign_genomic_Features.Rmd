@@ -1,0 +1,143 @@
+---
+title: "assign Genomic Features to MonoNucs"
+author: "Uwe Schwartz"
+date: "17/12/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+work.path<- "~/Analysis/R001_nucMacc/manuscript_figures/Fig2/genomicFeatures"
+dir.create(work.path, showWarnings = F)
+knitr::opts_knit$set(root.dir =work.path)
+#setwd(work.path)
+```
+
+## Dependencies & Libraries
+
+#### Load packages
+```{r libraries, message=FALSE}
+library(GenomicRanges)
+library(ChIPseeker)
+library(TxDb.Dmelanogaster.UCSC.dm3.ensGene)
+library(ggplot2)
+```
+
+##Import data
+
+```{r import and run h4}
+#get fragment sizes
+#input
+input<-read.delim("../../../H4_ChIP_v2.1_featureCOUNTS/RUN/09_nucMACC/nucMACC_result_table.tsv")
+
+all.gr<-GRanges(input)
+
+# get special nucleosomes
+hyperacc.gr<-GRanges(subset(input, category=="hyper-accessible"))
+hypoacc.gr<-GRanges(subset(input, category=="hypo-accessible"))
+
+
+
+#### Peak Anno
+db <- TxDb.Dmelanogaster.UCSC.dm3.ensGene
+
+mono.nucs <- list(all_nucMACC=all.gr,
+                  hyperAccesible=hyperacc.gr,
+                 hypoAccesible=hypoacc.gr)
+mono.nucs.anno <- lapply(mono.nucs, annotatePeak, TxDb=db, 
+                         genomicAnnotationPriority = c("Promoter", 
+                    "Exon", "Intron","5UTR", "3UTR","Downstream", "Intergenic"),
+                        tssRegion=c(-500, 300), verbose=FALSE)
+
+#genome annotation
+plotAnnoBar(mono.nucs.anno)
+
+#distance to TSS
+plotDistToTSS(mono.nucs.anno)
+
+##save
+pdf("AnnoBarPlot.pdf" ,width = 6, height = 2.5)
+    plotAnnoBar(mono.nucs.anno)
+dev.off()
+
+pdf("DistToTSS.pdf" ,width = 6, height = 2.5)
+    plotDistToTSS(mono.nucs.anno)
+dev.off()
+
+## as Lollipop plot
+hyperTable<-mono.nucs.anno$hyperAccesible@annoStat
+hypoTable<-mono.nucs.anno$hypoAccesible@annoStat
+allTable<-mono.nucs.anno$all_nucMACC@annoStat
+
+
+summarizeTerms<-function(Table){
+    ## summerize exons
+    exon<-sum(Table$Frequency[grep("Exon",Table$Feature)])
+    ## summerize introns
+    intron<-sum(Table$Frequency[grep("Intron",Table$Feature)])
+    ## summerize intergenic
+    interg<-sum(Table$Frequency[Table$Feature %in% 
+                                         c("Downstream (<=300)","Distal Intergenic")])
+    
+    ## promoter
+    prom<-Table$Frequency[grep("Promoter",Table$Feature)]
+    
+    
+    Frequency<-c(prom,exon,intron,interg)
+    Feature<-factor(c("Promoter", "Exon", "Intron", "Intergenic"),
+                    levels = rev(c("Promoter", "Exon", "Intron", "Intergenic")))
+    
+    df<-data.frame(Feature, Frequency)
+    return(df)
+}
+
+hyper.red<-summarizeTerms(hyperTable)
+hypo.red<-summarizeTerms(hypoTable)
+all.red<-summarizeTerms(allTable)
+
+hyper.red$enrich<-log2(hyper.red$Frequency/all.red$Frequency)
+hyper.red$nuc<-"hyperAccessible"
+
+hypo.red$enrich<-log2(hypo.red$Frequency/all.red$Frequency)
+hypo.red$nuc<-"hypoAccessible"
+
+#merge
+df<-rbind(hyper.red,hypo.red)
+
+g<-ggplot(df,aes(y=enrich, x=Feature, size=Frequency))   +
+    geom_hline(yintercept = 0, color = "black", size = 1)+
+    geom_bar(aes(Feature, enrich, fill=Feature), stat="identity", width = 0.1 )+
+    geom_point(aes(color=Feature))+coord_flip()+
+        theme_bw()+facet_grid(cols = vars(nuc))+
+    scale_size(limits = c(5,35),range=c(0.5,10))+
+    scale_fill_manual(values=c("#D43F39","#357EBD","#FEA22B","#5CB85B"))+
+    scale_color_manual(values=c("#D43F39","#357EBD","#FEA22B","#5CB85B"))
+
+
+pdf(file = "genomeEnrichment.pdf", width = 10, height = 2)
+        print(g)
+dev.off()
+
+print(g)
+
+# as.GRanges(mono.nucs.anno$hyperAccesible)$geneId
+# 
+# 
+# library(org.Dm.eg.db)
+# library(clusterProfiler)
+# symbl.entrz<-bitr(as.character(as.GRanges(mono.nucs.anno$hyperAccesible)$geneId), fromType="ENSEMBL", toType=c("SYMBOL"), OrgDb="org.Dm.eg.db")
+
+```
+
+
+
+
+
+##Session info
+```{r info}
+sessionInfo()
+```
+
+
+

@@ -1,0 +1,130 @@
+---
+title: "get RSC3 enrichment"
+author: "Uwe Schwartz"
+date: "25/04/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+work.path<- "/Users//admin//Analysis/R001_nucMacc/manuscript_figures/Fig7/RSCprofiles//"
+knitr::opts_knit$set(root.dir =work.path)
+out.path<-paste0(work.path,"/RSC_all/")
+dir.create(out.path, recursive = T, showWarnings = F)
+```
+
+## Dependencies & Libraries
+
+#### Load packages
+```{r libraries, message=FALSE}
+library(pheatmap)
+library(RColorBrewer)
+library(ggpubr)
+library(stringr)
+```
+
+##Import data
+
+```{r import}
+## load heatmap
+prof.val<-read.delim("RSC3/values_Profile_median.txt")
+
+#get 150 bp upstream TSS
+tss.idx<-which(colnames(prof.val)=="tick")
+
+rsc3<-apply(prof.val[2:5,(tss.idx-15):(tss.idx-1)],1,mean)
+
+df.rsc3<-data.frame(ChIPexo_Signal=rsc3,
+           Antibody=rep("RSC3",4),
+           condition= str_split_i(prof.val[2:5,1],"_",2) %>%
+               str_replace("rep2", "normal") %>%
+               str_replace("rep4", "heat shock"),
+           group=str_remove_all(prof.val[2:5,2],".bed")
+)
+
+#RSC1
+prof.val<-read.delim("RSC1/values_Profile_median.txt")
+
+#get 150 bp upstream TSS
+tss.idx<-which(colnames(prof.val)=="tick")
+
+rsc1<-apply(prof.val[2:5,(tss.idx-15):(tss.idx-1)],1,mean)
+
+df.rsc1<-data.frame(ChIPexo_Signal=rsc1,
+           Antibody=rep("RSC1",4),
+           condition= str_split_i(prof.val[2:5,1],"_",2) %>%
+               str_replace("rep3", "normal") %>%
+               str_replace("rep2", "heat shock"),
+           group=str_remove_all(prof.val[2:5,2],".bed")
+)
+
+#RSC9
+prof.val<-read.delim("RSC9/values_Profile_median.txt")
+
+#get 150 bp upstream TSS
+tss.idx<-which(colnames(prof.val)=="tick")
+
+rsc9<-apply(prof.val[2:5,(tss.idx-15):(tss.idx-1)],1,mean)
+
+df.rsc9<-data.frame(ChIPexo_Signal=rsc9,
+           Antibody=rep("RSC9",4),
+           condition= str_split_i(prof.val[2:5,1],"_",2) %>%
+               str_replace("rep2", "normal") %>%
+               str_replace("rep3", "heat shock"),
+           group=str_remove_all(prof.val[2:5,2],".bed")
+)
+
+
+#RSC58
+prof.val<-read.delim("RSC58//values_Profile_median.txt")
+
+#get 150 bp upstream TSS
+tss.idx<-which(colnames(prof.val)=="tick")
+
+rsc58<-apply(prof.val[2:5,(tss.idx-15):(tss.idx-1)],1,mean)
+
+df.rsc58<-data.frame(ChIPexo_Signal=rsc58,
+           Antibody=rep("RSC58",4),
+           condition= str_split_i(prof.val[2:5,1],"_",2) %>%
+               str_replace("rep1", "normal") %>%
+               str_replace("rep3", "heat shock"),
+           group=str_remove_all(prof.val[2:5,2],".bed")
+)
+
+
+
+### merge
+
+df<-rbind(df.rsc1,df.rsc3,df.rsc9,df.rsc58)
+
+df$condition<-factor(df$condition, levels=c("normal","heat shock"))
+
+
+g<-ggplot(df, aes(condition,ChIPexo_Signal, fill=group))+
+    geom_bar(stat="identity", position=position_dodge())+
+    facet_grid(cols = vars(Antibody))+theme_bw()+
+    scale_fill_manual(values=c("#A6761D","#2166AC"))+
+    coord_cartesian(ylim=c(3,6.1))+ylab("ChIPexo -150 bp - TSS")+
+    xlab("")+ 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+print(g)
+
+pdf(paste0(out.path,"barplot.pdf"), width=4, height = 3)
+    print(g)
+dev.off()
+
+
+```
+
+
+
+
+##Session info
+```{r info}
+sessionInfo()
+```
+
+
+

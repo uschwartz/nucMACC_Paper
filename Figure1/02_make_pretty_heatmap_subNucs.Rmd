@@ -1,0 +1,258 @@
+---
+title: "make pretty heatmap subnucs"
+author: "Uwe Schwartz"
+date: "26/11/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+work.path<- "/Volumes/admin/Analysis/R001_nucMacc/manuscript_figures/Fig1/heatmaps/subnucs/"
+#work.path<- "~/Analysis/R001_nucMacc/manuscript_figures/Fig1/heatmaps/subnucs/"
+knitr::opts_knit$set(root.dir =work.path)
+#setwd(work.path)
+#out.path<-
+date.x<-Sys.Date()
+```
+
+## Dependencies & Libraries
+
+#### Load packages
+```{r libraries, message=FALSE}
+library(pheatmap)
+library(RColorBrewer)
+library(ggpubr)
+```
+
+##Import data
+
+```{r import}
+# load 
+rpkms<-read.delim("../../data/expression/RPKM.sorted.bed", header = F)
+rpkms.uni<-rpkms[!duplicated(as.character(rpkms$V4)),]
+
+## load gtf
+gtf<-read.delim("../../data/expression/dm3.refGene.gtf", header = F)
+
+#gene names
+genes.gtf<-sapply(strsplit(as.character(gtf$V9), fixed = T, split = ";"),
+       function(x) sapply(
+           strsplit(grep("gene_id", x, value = T), split = " ", fixed = T),
+            function(y) y[2]    
+           ) 
+        )
+
+#gene ids
+id.gtf<-sapply(strsplit(as.character(gtf$V9), fixed = T, split = ";"),
+       function(x) sapply(
+           strsplit(grep("transcript_id", x, value = T), split = " ", fixed = T),
+            function(y) y[3]    
+           ) 
+        )
+
+#sort gene ids
+sorted.id.all<-id.gtf[match(rpkms.uni$V4, genes.gtf)]
+# select just protein_coding genes  (NM_ = mRNA)
+sorted.id<-sorted.id.all[(grep("NM_", sorted.id.all))]
+
+### plot expression 
+rpkms.mrna<-rpkms.uni[grep("NM_", sorted.id.all),]
+
+df.rpkm<-data.frame(genes=rpkms.mrna$V4, logRPKMs=log2(rpkms.mrna$V5+1))
+df.rpkm$genes<-factor(df.rpkm$genes, levels = rev(as.character(df.rpkm$genes)))
+df.rpkm$refSeq<-sorted.id
+
+
+qr<-quantile(df.rpkm$logRPKMs)
+
+#subdivide
+df.rpkm$expr.strength<-"silent"
+df.rpkm$expr.strength[df.rpkm$logRPKMs>qr[2]]<-"low"
+df.rpkm$expr.strength[df.rpkm$logRPKMs>qr[3]]<-"mid"
+df.rpkm$expr.strength[df.rpkm$logRPKMs>qr[4]]<-"high"
+
+df.rpkm$expr.strength<-factor(df.rpkm$expr.strength, levels = c("high","mid", "low", "silent"))
+
+
+write.table(df.rpkm, file="../../data/expression/RPKM_protCod_genes.txt", 
+            row.names = F, quote=F, sep="\t")
+
+
+
+png("expression_heatmap.png",res = 700, width = 2500, height = 2800)
+    gbar<-ggbarplot(df.rpkm, x = "genes", y = "logRPKMs",
+              fill = "expr.strength",
+              color = "expr.strength",           
+              sort.val = "none",          # Sort the value in descending order
+              sort.by.groups = FALSE,     # Don't sort inside each group
+              x.text.angle = 90,          # Rotate vertically x axis texts
+              xlab = "log2(RPKM +1)",
+              ylab=FALSE,
+              legend.title = "Expression level",
+              rotate = TRUE,
+              ggtheme = theme_pubr(),
+              palette=c("#D43F39","#357EBD", "#FEA22B", "#5CB85B")
+              )
+    print(gbar)
+dev.off()
+
+
+
+#     
+### load gene sorting of heatmap
+genes.list<-read.delim("sortedRegions_Heatmap_all.txt")
+head(genes.list)
+
+genes.heat.sorted.na<-genes.list[match(sorted.id, 
+                                       as.character(genes.list$name), nomatch = ),]
+#remove NAs
+table(is.na(match(sorted.id, as.character(genes.list$name))))
+
+genes.heat.sorted<-genes.heat.sorted.na[!is.na(match(sorted.id,
+                                    as.character(genes.list$name))),]
+
+head(genes.heat.sorted)
+
+
+## load heatmap
+heat.val<-read.delim("values_Heatmap_all.txt", skip=2)
+row.names(heat.val)<-as.character(genes.list$name)
+
+heat.val.sort<-heat.val[as.character(genes.heat.sorted$name),]
+
+head(heat.val.sort[,1:10])
+
+```
+
+
+## Analysis
+
+```{r Analysis}
+#get samples from heatmap sub.nucMACC
+##  sub.H3.nucMACC
+H3.sub.nucMACC.col<-grep("H3_sub.nucMACC_scores",colnames(heat.val.sort), value = T)
+
+heat.sub.H3<-heat.val.sort[,H3.sub.nucMACC.col[75:250]]
+colnames(heat.sub.H3)<-c("-750", rep(".",75),"TSS", rep(".",98),"+ 1 kb")
+
+##  sub.H4.nucMACC
+H4.sub.nucMACC.col<-grep("H4_sub.nucMACC_scores",colnames(heat.val.sort), value = T)
+
+heat.sub.H4<-heat.val.sort[,H4.sub.nucMACC.col[75:250]]
+colnames(heat.sub.H4)<-c("-750", rep(".",75),"TSS", rep(".",98),"+ 1 kb")
+
+#heatmap color scale
+colsubMACC<-colorRampPalette(c("#2166AC","#FFFFFF","#B2182B"))(100)
+
+######################### get Profile ######################
+
+#split genes by expression
+genes.split<-split(df.rpkm$refSeq,f = df.rpkm$expr.strength)
+
+#convert NAs to 0
+woNA.H3<-heat.sub.H3
+woNA.H3[is.na(woNA.H3)]<-0
+
+profile.list<-lapply(genes.split, function(x) 
+    apply(woNA.H3[which(rownames(woNA.H3) %in% x),],
+                                      2,function(x) mean(x,na.rm = T)))
+
+#######
+pdf("profile_H3_subNucs.pdf", width = 4, height=3)
+    plot(seq(-750,1000,10), profile.list[["silent"]], type="l", 
+         xlab="distance from TSS", ylab = "sub-nucMACC score",
+         lwd=2, main="H3 sub-nucs", col="#5CB85B", ylim=c(-0.07,0.01))
+    lines(seq(-750,1000,10), profile.list[["low"]], col="#FEA22B",
+         lwd=2)
+    lines(seq(-750,1000,10), profile.list[["mid"]], col="#357EBD",
+         lwd=2)
+    lines(seq(-750,1000,10), profile.list[["high"]], col="#D43F39",
+         lwd=2)
+dev.off()
+
+getwd()
+### heatmap
+
+pheatmap(heat.sub.H3[1:2500,], scale="none",
+         breaks=seq(-0.5,0.5,length.out = 101),
+         show_colnames = T, show_rownames = F,
+         color = colsubMACC,
+         cluster_rows = F, cluster_cols = F,
+         na_col =  "#FFFFFF")
+dev.off()
+
+
+
+png("H3_sub-nucMACC_heatmap_white.png",res = 700, width = 2000, height = 2800)
+    
+    pheatmap(heat.sub.H3, scale="none",
+         breaks=seq(-0.2,0.2,length.out = 101),
+         show_colnames = T, show_rownames = F,
+         color = colsubMACC,
+         cluster_rows = F, cluster_cols = F,
+         na_col = "#FFFFFF")
+    
+dev.off()
+
+
+
+#### H4
+#convert NAs to 0
+woNA.H4<-heat.sub.H4
+woNA.H4[is.na(woNA.H4)]<-0
+
+profile.list<-lapply(genes.split, function(x) 
+    apply(woNA.H4[which(rownames(woNA.H4) %in% x),],
+                                      2,function(x) mean(x,na.rm = T)))
+
+
+pdf("profile_H4_subNucs.pdf", width = 4, height=3)
+    plot(seq(-750,1000,10), profile.list[["silent"]], type="l", 
+         xlab="distance from TSS", ylab = "sub-nucMACC score",
+         lwd=2, main="H4 sub-nucs", col="#5CB85B", ylim=c(-0.13,0.01))
+    lines(seq(-750,1000,10), profile.list[["low"]], col="#FEA22B",
+         lwd=2)
+    lines(seq(-750,1000,10), profile.list[["mid"]], col="#357EBD",
+         lwd=2)
+    lines(seq(-750,1000,10), profile.list[["high"]], col="#D43F39",
+         lwd=2)
+dev.off()
+
+#heatmap
+
+pheatmap(heat.sub.H4[1:2500,], scale="none",
+         breaks=seq(-0.3,0.3,length.out = 101),
+         show_colnames = T, show_rownames = F,
+         color = colsubMACC,
+         cluster_rows = F, cluster_cols = F,
+         na_col ="#FFFFFF")
+dev.off()
+
+
+
+png("H4_sub-nucMACC_heatmap_white.png",res = 700, width = 2000, height = 2800)
+    
+    pheatmap(heat.sub.H4, scale="none",
+         breaks=seq(-0.3,0.3,length.out = 101),
+         show_colnames = T, show_rownames = F,
+         color = colsubMACC,
+         cluster_rows = F, cluster_cols = F,
+         na_col = "#FFFFFF")
+    
+dev.off()
+
+
+
+```
+
+
+
+
+##Session info
+```{r info}
+sessionInfo()
+```
+
+
+

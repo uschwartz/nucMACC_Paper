@@ -1,0 +1,120 @@
+---
+title: "get Fragment size Distribution"
+author: "Uwe Schwartz"
+date: "07/12/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+work.path<- "~/Analysis/R001_nucMacc/manuscript_figures/Fig1/fragmentSizes"
+dir.create(work.path, showWarnings = F)
+knitr::opts_knit$set(root.dir =work.path)
+#setwd(work.path)
+```
+
+## Dependencies & Libraries
+
+#### Load packages
+```{r libraries, message=FALSE}
+
+```
+
+##Import data
+
+```{r import and run h4}
+#get fragment sizes
+#H4
+imp.path<-"~//Analysis/R001_nucMacc/H4_ChIP_v2.1_featureCOUNTS/RUN/03_QUALIMAP/"
+
+MNase.cond<-list.files(imp.path)
+
+fragSize.list<-list()
+for(i in MNase.cond){
+    data<-paste0(imp.path, i,"/raw_data_qualimapReport/insert_size_histogram.txt")
+    fragSize.list[[i]]<-read.delim(data)
+}
+
+#palette<-c("#D43F39","#357EBD","#FEA22B","#5CB85B","#8E8E8D")
+#names(palette)<-names(fragSize.list)
+
+RColorBrewer::display.brewer.pal(5,"Greys")
+palette<-RColorBrewer::brewer.pal(5,"Greys")[2:5]
+names(palette)<-rev(c("H4_1.5U","H4_6.25U","H4_25U" ,"H4_100U"))
+
+
+max.y<-max(sapply(fragSize.list, function(x) max(x$insert.size/sum(x$insert.size))))
+
+pdf("H4_size_dist.pdf" ,width = 4, height = 4)
+    for(i in 1:length(fragSize.list)){
+        if(i == 1){
+            plot(fragSize.list[[i]]$X.Insert.size..bp.,
+             fragSize.list[[i]]$insert.size/sum(fragSize.list[[i]]$insert.size),
+             type="l", xlim=c(70, 450), lwd=2, col=palette[names(fragSize.list)[i]],
+             ylim=c(0,max.y), ylab="Fraction", xlab="Fragemnt size in bp")
+        } else {
+            lines(fragSize.list[[i]]$X.Insert.size..bp.,
+             fragSize.list[[i]]$insert.size/sum(fragSize.list[[i]]$insert.size),
+             lwd=2, col=palette[names(fragSize.list)[i]])
+        }
+    }
+    abline(v=140, lty=2)
+    abline(v=200, lty=2)
+    legend("topright", legend = names(palette)[1:i], 
+           col = palette[1:i], lwd=2, bty="n")
+dev.off()
+
+```
+
+```{r import and run h3}
+#get fragment sizes
+#H3
+imp.path<-"~/Analysis/R001_nucMacc/H3_ChIP_v2_featureCOUNTS//RUN/03_QUALIMAP/"
+
+MNase.cond<-list.files(imp.path)
+
+fragSize.list<-list()
+for(i in MNase.cond){
+    data<-paste0(imp.path, i,"/raw_data_qualimapReport/insert_size_histogram.txt")
+    fragSize.list[[i]]<-read.delim(data)
+}
+
+#palette<-c("#D43F39","#357EBD","#FEA22B","#5CB85B")
+#names(palette)<-names(fragSize.list)
+palette<-RColorBrewer::brewer.pal(5,"Greys")[2:5]
+names(palette)<-rev(c("H3_1.5U","H3_6.25U","H3_25U" ,"H3_100U"))
+
+
+max.y<-max(sapply(fragSize.list, function(x) max(x$insert.size/sum(x$insert.size))))
+
+pdf("H3_size_dist.pdf" ,width = 4, height = 4)
+    for(i in 1:length(fragSize.list)){
+        if(i == 1){
+            plot(fragSize.list[[i]]$X.Insert.size..bp.,
+             fragSize.list[[i]]$insert.size/sum(fragSize.list[[i]]$insert.size),
+             type="l", xlim=c(70, 450), lwd=2, col=palette[names(fragSize.list)[i]],
+             ylim=c(0,max.y), ylab="Fraction", xlab="Fragemnt size in bp")
+        } else {
+            lines(fragSize.list[[i]]$X.Insert.size..bp.,
+             fragSize.list[[i]]$insert.size/sum(fragSize.list[[i]]$insert.size),
+             lwd=2, col=palette[names(fragSize.list)[i]])
+        }
+    }
+    abline(v=140, lty=2)
+    abline(v=200, lty=2)
+    legend("topright", legend = names(palette)[1:i], 
+           col = palette[1:i], lwd=2, bty="n")
+dev.off()
+
+```
+
+
+
+##Session info
+```{r info}
+sessionInfo()
+```
+
+
+

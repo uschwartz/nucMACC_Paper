@@ -1,0 +1,144 @@
+---
+title: "assign Expression to MonoNucs"
+author: "Uwe Schwartz"
+date: "02/03/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+work.path<- "~//Analysis/R001_nucMacc/manuscript_figures/Fig2/Exp"
+dir.create(work.path, showWarnings = F)
+knitr::opts_knit$set(root.dir =work.path)
+#setwd(work.path)
+```
+
+## Dependencies & Libraries
+
+#### Load packages
+```{r libraries, message=FALSE}
+library(GenomicRanges)
+library(ChIPseeker)
+library(TxDb.Dmelanogaster.UCSC.dm3.ensGene)
+library(ggplot2)
+library(org.Dm.eg.db)
+library(clusterProfiler)
+library(ggbeeswarm)
+```
+
+##Import data
+
+```{r import and run}
+#load expression data of protein coding genes
+expr<-read.delim("../../Fig1/data/expression/RPKM_protCod_genes.txt")
+#get ENSEMBL Ids
+symbl.convert<-bitr(as.character(expr$refSeq), fromType="REFSEQ", 
+                  toType=c("ENSEMBL"), OrgDb="org.Dm.eg.db")
+
+mx<-match(expr$refSeq, symbl.convert$REFSEQ)
+
+expr.ext<-cbind(expr, ENSEMBL=symbl.convert[mx,"ENSEMBL"])
+
+
+#get fragment sizes
+#input
+input<-read.delim("../../../H4_ChIP_v2.1_featureCOUNTS/RUN/09_nucMACC/nucMACC_result_table.tsv")
+
+all.gr<-GRanges(input)
+
+# get special nucleosomes
+hyperacc.gr<-GRanges(subset(input, category=="hyper-accessible"))
+hypoacc.gr<-GRanges(subset(input, category=="hypo-accessible"))
+
+
+
+#### Peak Anno
+db <- TxDb.Dmelanogaster.UCSC.dm3.ensGene
+
+mono.nucs <- list(all_nucMACC=all.gr,
+                  hyperAccesible=hyperacc.gr,
+                 hypoAccesible=hypoacc.gr)
+mono.nucs.anno <- lapply(mono.nucs, annotatePeak, TxDb=db, 
+                         genomicAnnotationPriority = c("Promoter", 
+                    "Exon", "Intron","5UTR", "3UTR","Downstream", "Intergenic"),
+                        tssRegion=c(-500, 300), verbose=FALSE)
+
+
+
+## get associated genes
+getExpr<-function(convTable){
+    convTable$annotation[grep("Exon", convTable$annotation)] <-"Exon"
+    convTable$annotation[grep("Intron", convTable$annotation)] <-"Intron"
+    
+    conv2genes<-convTable[(convTable$annotation %in% c("Intron", "Exon", "Promoter"))]
+    
+    mx.expr<-match(conv2genes$geneId, expr.ext$ENSEMBL)
+    
+    df<-data.frame(category=conv2genes$category,
+          feature=conv2genes$annotation,
+            logRPKM=expr.ext$logRPKMs[mx.expr])
+    
+    df.red<-df[!is.na(df$logRPKM),]
+    return(df.red)
+}
+
+
+df.hyper<-getExpr(convTable = mono.nucs.anno$hyperAccesible@anno)
+df.hypo<-getExpr(convTable = mono.nucs.anno$hypoAccesible@anno)
+
+
+df.both<-rbind(df.hyper, df.hypo)
+
+df.both$feature<-factor(df.both$feature, levels = c("Promoter","Exon","Intron"))
+
+
+g<-ggplot(df.both, aes(x=category,y=logRPKM, fill=category))+
+    geom_violin()+
+    geom_boxplot(width=0.07, outlier.shape = NA)+
+    facet_grid(cols = vars(feature))+
+    scale_fill_manual(values=alpha(c("#1B9E77","#984EA3"),0.5))+
+    xlab("")+
+    guides(fill = "none")+
+    ylab("log2(RPKM+1)")+
+    theme_bw()
+
+print(g)    
+
+
+pdf("expression_subgrouped.pdf", height = 3)
+    print(g)
+dev.off()
+
+
+
+g2<-ggplot(df.both, aes(x=category,y=logRPKM, fill=category))+
+    geom_violin()+
+    geom_boxplot(width=0.07, outlier.shape = NA)+
+    scale_fill_manual(values=alpha(c("#1B9E77","#984EA3"),0.5))+
+    xlab("")+
+    guides(fill = "none")+
+    ylab("log2(RPKM+1)")+
+    theme_bw()
+
+print(g2)    
+
+
+pdf("expression_together.pdf", height = 3, width=3)
+    print(g2)
+dev.off()
+
+
+```
+
+
+
+
+
+##Session info
+```{r info}
+sessionInfo()
+```
+
+
+

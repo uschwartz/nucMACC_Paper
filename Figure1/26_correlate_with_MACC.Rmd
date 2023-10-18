@@ -1,0 +1,192 @@
+---
+title: "correlate nucMACC and sub-nucMACC with MACC"
+author: "Uwe Schwartz"
+date: "07/12/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+work.path<- "~/Analysis/R001_nucMacc/manuscript_figures/Fig1/correlate2MACC/"
+knitr::opts_knit$set(root.dir =work.path)
+#setwd(work.path)
+```
+
+## Dependencies & Libraries
+
+#### Load packages
+```{r libraries, message=FALSE}
+library(rtracklayer)
+library(LSD)
+library(VennDiagram)
+dark2 <- c(RColorBrewer::brewer.pal(8, "Dark2"))
+```
+
+##Import data
+
+```{r import H4}
+#Mieczkowski
+macc.h4.raw<-read.table("data/GSE78984_s2.MACC_H4.ReplicateSet_bin300.bedGraph",
+                    header=F, skip = 1)
+write.table(macc.h4.raw,"data/MACC_H4.bedGraph", sep="\t",
+            quote=F, row.names = F, col.names = F)
+
+macc.h4<-import.bedGraph("data/MACC_H4.bedGraph")
+
+## nucMACCs
+nucmacc.h4<-import.bedGraph("../../../H4_ChIP_v2.1_featureCOUNTS/RUN/09_nucMACC/nucMACC_scores.bedgraph")
+
+ovrlps<-findOverlaps(nucmacc.h4,macc.h4, minoverlap = 100)
+
+nucmacc.score<-nucmacc.h4[ovrlps@from]$score
+macc.score<-macc.h4[ovrlps@to]$score
+
+pdf("nucMACC_MACC_Venn.pdf", width = 6, height = 5)
+    print(draw.pairwise.venn(area1=length(nucmacc.h4),
+                    area2=length(macc.h4),
+                    cross.area=length(nucmacc.score),
+                    category=c("nucMACC","MACC"),
+                    fill=c(dark2[1],dark2[2])))
+dev.off()
+
+png("H4_nucMACC_vs_MACC.png", width = 1280, height = 1280, res =300 )
+    heatscatter(nucmacc.score,macc.score,cor=T,
+                 cexplot = 0.3,xlab = "nucMACC", ylab="MACC")
+dev.off()
+
+##subnucMACCs
+subnucmacc.h4<-import.bedGraph("../../../H4_ChIP_v2.1_featureCOUNTS/RUN/10_sub-nucMACC/sub-nucMACC_scores.bedgraph")
+
+ovrlps.sub<-findOverlaps(subnucmacc.h4,macc.h4, minoverlap = 100)
+
+sub.nucmacc.score<-subnucmacc.h4[ovrlps.sub@from]$score
+sub.macc.score<-macc.h4[ovrlps.sub@to]$score
+
+png("H4_sub-nucMACC_vs_MACC.png", width = 1280, height = 1280, res =300 )
+    heatscatter(sub.nucmacc.score,sub.macc.score,cor=T,
+            xlab = "sub-nucMACC", ylab="MACC", cexplot = 0.3)
+dev.off()
+
+
+########
+ovrlps.split<-findOverlaps(subnucmacc.h4,nucmacc.h4, minoverlap = 100)
+
+sub.nucmacc.score.nuc<-subnucmacc.h4[ovrlps.split@from]$score
+nuc.macc.score.sub<-nucmacc.h4[ovrlps.split@to]$score
+
+png("H4_sub-nucMACC_vs_nucMACC.png", width = 1280, height = 1280, res =300 )
+    heatscatter(sub.nucmacc.score.nuc,nuc.macc.score.sub,cor=T,
+            xlab = "sub-nucMACC", ylab="nucMACC", cexplot = 0.3)
+dev.off()
+```
+
+
+```{r import H3}
+#Mieczkowski
+macc.H3.raw<-read.table("data/GSE78984_s2.MACC_H3.ReplicateSet_bin300.bedGraph",
+                    header=F, skip = 1)
+write.table(macc.H3.raw,"data/MACC_H3.bedGraph", sep="\t",
+            quote=F, row.names = F, col.names = F)
+
+macc.H3<-import.bedGraph("data/MACC_H3.bedGraph")
+
+## nucMACCs
+nucmacc.H3<-import.bedGraph("../../../H3_ChIP_v2_featureCOUNTS/RUN/09_nucMACC/nucMACC_scores.bedgraph")
+
+ovrlps<-findOverlaps(nucmacc.H3,macc.H3, minoverlap = 100)
+
+nucmacc.score<-nucmacc.H3[ovrlps@from]$score
+macc.score<-macc.H3[ovrlps@to]$score
+
+png("H3_nucMACC_vs_MACC.png", width = 1280, height = 1280, res =300 )
+    heatscatter(nucmacc.score,macc.score,cor=T,
+                 cexplot = 0.3,xlab = "nucMACC", ylab="MACC")
+dev.off()
+
+##subnucMACCs
+subnucmacc.H3<-import.bedGraph("../../../H3_ChIP_v2_featureCOUNTS//RUN/10_sub-nucMACC/sub-nucMACC_scores.bedgraph")
+
+ovrlps.sub<-findOverlaps(subnucmacc.H3,macc.H3, minoverlap = 100)
+
+sub.nucmacc.score<-subnucmacc.H3[ovrlps.sub@from]$score
+sub.macc.score<-macc.H3[ovrlps.sub@to]$score
+
+png("H3_sub-nucMACC_vs_MACC.png", width = 1280, height = 1280, res =300 )
+    heatscatter(sub.nucmacc.score,sub.macc.score,cor=T,
+            xlab = "sub-nucMACC", ylab="MACC", cexplot = 0.3)
+dev.off()
+
+
+########
+ovrlps.split<-findOverlaps(subnucmacc.H3,nucmacc.H3, minoverlap = 100)
+
+sub.nucmacc.score.nuc<-subnucmacc.H3[ovrlps.split@from]$score
+nuc.macc.score.sub<-nucmacc.H3[ovrlps.split@to]$score
+
+png("H3_sub-nucMACC_vs_nucMACC.png", width = 1280, height = 1280, res =300 )
+    heatscatter(sub.nucmacc.score.nuc,nuc.macc.score.sub,cor=T,
+            xlab = "sub-nucMACC", ylab="nucMACC", cexplot = 0.3)
+dev.off()
+```
+
+
+```{r h3 vs h4}
+ovrlps<-findOverlaps(nucmacc.h4,nucmacc.H3, minoverlap = 100)
+
+nucmaccH4.score<-nucmacc.h4[ovrlps@from]$score
+nucmaccH3.score<-nucmacc.H3[ovrlps@to]$score
+
+
+pdf("H4nucMACC_H3nucMACC_Venn.pdf", width = 6, height = 5)
+    print(draw.pairwise.venn(area1=length(nucmacc.h4),
+                    area2=length(nucmacc.H3),
+                    cross.area=length(nucmaccH4.score),
+                    category=c("H4 nucMACC","H3 nucMACC"),
+                    fill=c(dark2[1],dark2[2])))
+dev.off()
+
+png("H4_nucMACC_vs_H3_nuMACC.png", width = 1280, height = 1280, res =300 )
+    heatscatter(nucmaccH3.score,nucmaccH4.score,cor=T,
+                 cexplot = 0.3,xlab = "H3 nucMACC", ylab="H4 nucMACC")
+dev.off()
+
+
+### sub-nucs
+subnucmacc.H3<-import.bedGraph("../../../H3_ChIP_v2_featureCOUNTS//RUN/10_sub-nucMACC/sub-nucMACC_scores.bedgraph")
+subnucmacc.h4<-import.bedGraph("../../../H4_ChIP_v2.1_featureCOUNTS/RUN/10_sub-nucMACC/sub-nucMACC_scores.bedgraph")
+
+ovrlps<-findOverlaps(subnucmacc.h4,subnucmacc.H3, minoverlap = 100)
+
+subnucmaccH4.score<-subnucmacc.h4[ovrlps@from]$score
+subnucmaccH3.score<-subnucmacc.H3[ovrlps@to]$score
+
+
+pdf("H4_sub-nucMACC_H3_sub-nucMACC_Venn.pdf", width = 6, height = 5)
+    print(draw.pairwise.venn(area1=length(subnucmacc.h4),
+                    area2=length(subnucmacc.H3),
+                    cross.area=length(subnucmaccH4.score),
+                    category=c("H4 sub-nucMACC","H3 sub-nucMACC"),
+                    fill=c(dark2[1],dark2[2])))
+dev.off()
+
+png("H4_sub-nucMACC_vs_H3_sub-nuMACC.png", width = 1280, height = 1280, res =300 )
+    heatscatter(subnucmaccH3.score,subnucmaccH4.score,cor=T,
+                 cexplot = 0.3,xlab = "H3 sub-nucMACC", ylab="H4 sub-nucMACC")
+dev.off()
+
+
+
+
+
+```
+
+
+
+##Session info
+```{r info}
+sessionInfo()
+```
+
+
+

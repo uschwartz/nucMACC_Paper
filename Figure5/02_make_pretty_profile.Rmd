@@ -1,0 +1,254 @@
+---
+title: "make pretty profile monoNucs TF"
+author: "Uwe Schwartz"
+date: "17/03/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+work.path<- "~/Analysis/R001_nucMacc/manuscript_figures/Fig2/ChIP_atlas/profiles/"
+knitr::opts_knit$set(root.dir =work.path)
+#setwd(work.path)
+```
+
+## Dependencies & Libraries
+
+#### Load packages
+```{r libraries, message=FALSE}
+library(RColorBrewer)
+```
+
+##Import data
+
+```{r import}
+# load profile
+m1bp<-read.delim("M1BP/values_Profile.txt")
+head(m1bp[,1:5])
+
+```
+
+
+## Analysis
+
+```{r m1bp}
+#get conditions from profile
+H4.1.5<-grep("1.5U",m1bp$bin.labels, value = T)
+H4.100<-grep("100U",m1bp$bin.labels, value = T)
+H4.25<-grep("_25U",m1bp$bin.labels, value = T)
+H4.6.25<-grep("_6.25U",m1bp$bin.labels, value = T)
+
+row.names(m1bp)<-as.character(m1bp$bin.labels)
+
+center.pos<-which(colnames(m1bp)=="tick")
+
+start.plot<-c(-1000)
+end.plot<-c(1000)
+pos<-seq(start.plot,end.plot-10,10)+5
+
+profile.index<- (center.pos+start.plot/10+1):(center.pos+end.plot/10)
+
+pdf("profile_m1bp_monoNucs.pdf", width = 5, height=4)
+    par(mar=c(5.1, 4.1, 4.1, 7.1))
+    plot(pos,
+         m1bp[H4.1.5,profile.index ], 
+         type="l", 
+         xlab="distance from TSS", ylab = "MNase fragment density",
+         lwd=2, main="M1BP", col="#6E016B", ylim=c(0,150))
+    lines(pos,
+         m1bp[H4.6.25, profile.index],
+         col="#896BB1",lwd=2)
+    lines(pos,
+         m1bp[H4.25, profile.index],
+         col="#9EBCDA",lwd=2)
+    lines(pos,
+         m1bp[H4.100, profile.index],
+         col="#D2E6E6",lwd=2)
+    legend("topright",bty="n",
+               legend = c("1.5U", "6.25U", "25U", "100U"),
+               col = c("#6E016B","#896BB1", "#9EBCDA", "#D2E6E6"), lwd=2,
+               inset=c(-0.5,0), xpd=TRUE)
+dev.off()
+
+
+```
+
+```{r AbdA}
+abda<-read.delim("AbdA//values_Profile.txt")
+head(abda[,1:5])
+
+#get conditions from profile
+H4.1.5<-grep("1.5U",abda$bin.labels, value = T)
+H4.100<-grep("100U",abda$bin.labels, value = T)
+H4.25<-grep("_25U",abda$bin.labels, value = T)
+H4.6.25<-grep("_6.25U",abda$bin.labels, value = T)
+
+row.names(abda)<-as.character(abda$bin.labels)
+
+center.pos<-which(colnames(abda)=="tick")
+
+start.plot<-c(-1000)
+end.plot<-c(1000)
+pos<-seq(start.plot,end.plot-10,10)+5
+
+profile.index<- (center.pos+start.plot/10+1):(center.pos+end.plot/10)
+
+## loess smoothing
+smoothData<-function(pos=pos,profile){
+    df<-data.frame(pos, profile=as.numeric(profile))
+
+    lo.fit<-loess(profile~pos,df,span = 0.3)
+    sm<-predict(lo.fit, pos)
+    return(sm)
+}
+
+
+
+
+pdf("profile_abda_monoNucs.pdf", width = 5, height=4)
+    par(mar=c(5.1, 4.1, 4.1, 7.1))
+    plot(pos,
+         smoothData(pos, abda[H4.1.5,profile.index ]), 
+         type="l", 
+         xlab="distance from peak center", ylab = "MNase fragment density",
+         lwd=2, main="abdA", col="#6E016B", ylim=c(40,130))
+    lines(pos,
+         smoothData(pos, abda[H4.6.25, profile.index]),
+         col="#896BB1",lwd=2)
+    lines(pos,
+         smoothData(pos, abda[H4.25, profile.index]),
+         col="#9EBCDA",lwd=2)
+    lines(pos,
+         smoothData(pos, abda[H4.100, profile.index]),
+         col="#D2E6E6",lwd=2)
+    legend("topright",bty="n",
+               legend = c("1.5U", "6.25U", "25U", "100U"),
+               col = c("#6E016B","#896BB1", "#9EBCDA", "#D2E6E6"), lwd=2,
+               inset=c(-0.5,0), xpd=TRUE)
+dev.off()
+
+
+```
+```{r zkscan3}
+zkscan3<-read.delim("ZKSCAN3/values_Profile.txt")
+head(zkscan3[,1:5])
+
+#get conditions from profile
+H4.1.5<-grep("1.5U",zkscan3$bin.labels, value = T)
+H4.100<-grep("100U",zkscan3$bin.labels, value = T)
+H4.25<-grep("_25U",zkscan3$bin.labels, value = T)
+H4.6.25<-grep("_6.25U",zkscan3$bin.labels, value = T)
+
+row.names(zkscan3)<-as.character(zkscan3$bin.labels)
+
+center.pos<-which(colnames(zkscan3)=="tick")
+
+start.plot<-c(-1000)
+end.plot<-c(1000)
+pos<-seq(start.plot,end.plot-10,10)+5
+
+profile.index<- (center.pos+start.plot/10+1):(center.pos+end.plot/10)
+
+## loess smoothing
+smoothData<-function(pos=pos,profile){
+    df<-data.frame(pos, profile=as.numeric(profile))
+
+    lo.fit<-loess(profile~pos,df,span = 0.3)
+    sm<-predict(lo.fit, pos)
+    return(sm)
+}
+
+
+
+
+pdf("profile_zkscan3_monoNucs.pdf", width = 5, height=4)
+    par(mar=c(5.1, 4.1, 4.1, 7.1))
+    plot(pos,
+         smoothData(pos, zkscan3[H4.1.5,profile.index ]), 
+         type="l", 
+         xlab="distance from peak center", ylab = "MNase fragment density",
+         lwd=2, main="ZSCAN3", col="#6E016B", ylim=c(60,150))
+    lines(pos,
+         smoothData(pos, zkscan3[H4.6.25, profile.index]),
+         col="#896BB1",lwd=2)
+    lines(pos,
+         smoothData(pos, zkscan3[H4.25, profile.index]),
+         col="#9EBCDA",lwd=2)
+    lines(pos,
+         smoothData(pos, zkscan3[H4.100, profile.index]),
+         col="#D2E6E6",lwd=2)
+    legend("topright",bty="n",
+               legend = c("1.5U", "6.25U", "25U", "100U"),
+               col = c("#6E016B","#896BB1", "#9EBCDA", "#D2E6E6"), lwd=2,
+               inset=c(-0.5,0), xpd=TRUE)
+dev.off()
+
+
+```
+
+```{r msl1}
+msl1<-read.delim("MSL-1//values_Profile.txt")
+head(msl1[,1:5])
+
+#get conditions from profile
+H4.1.5<-grep("1.5U",msl1$bin.labels, value = T)
+H4.100<-grep("100U",msl1$bin.labels, value = T)
+H4.25<-grep("_25U",msl1$bin.labels, value = T)
+H4.6.25<-grep("_6.25U",msl1$bin.labels, value = T)
+
+row.names(msl1)<-as.character(msl1$bin.labels)
+
+center.pos<-which(colnames(msl1)=="tick")
+
+start.plot<-c(-1000)
+end.plot<-c(1000)
+pos<-seq(start.plot,end.plot-10,10)+5
+
+profile.index<- (center.pos+start.plot/10+1):(center.pos+end.plot/10)
+
+## loess smoothing
+smoothData<-function(pos=pos,profile){
+    df<-data.frame(pos, profile=as.numeric(profile))
+
+    lo.fit<-loess(profile~pos,df,span = 0.3)
+    sm<-predict(lo.fit, pos)
+    return(sm)
+}
+
+
+
+
+pdf("profile_msl1_monoNucs.pdf", width = 5, height=4)
+    par(mar=c(5.1, 4.1, 4.1, 7.1))
+    plot(pos,
+         smoothData(pos, msl1[H4.1.5,profile.index ]), 
+         type="l", 
+         xlab="distance from peak center", ylab = "MNase fragment density",
+         lwd=2, main="MSL-1", col="#6E016B", ylim=c(60,120))
+    lines(pos,
+         smoothData(pos, msl1[H4.6.25, profile.index]),
+         col="#896BB1",lwd=2)
+    lines(pos,
+         smoothData(pos, msl1[H4.25, profile.index]),
+         col="#9EBCDA",lwd=2)
+    lines(pos,
+         smoothData(pos, msl1[H4.100, profile.index]),
+         col="#D2E6E6",lwd=2)
+    legend("topright",bty="n",
+               legend = c("1.5U", "6.25U", "25U", "100U"),
+               col = c("#6E016B","#896BB1", "#9EBCDA", "#D2E6E6"), lwd=2,
+               inset=c(-0.5,0), xpd=TRUE)
+dev.off()
+
+
+```
+
+
+##Session info
+```{r info}
+sessionInfo()
+```
+
+
+
