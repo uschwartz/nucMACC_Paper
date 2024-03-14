@@ -1,5 +1,6 @@
+#!/usr/bin/env bash
 
-AnalysisDir="/Volumes/PromisePegasus/_Research_/nucMACC_H2AZ"
+AnalysisDir=/home/$USER/nucMACC_Paper/
 OutDir=$AnalysisDir/data/
 
 # download raw data of GEO accession

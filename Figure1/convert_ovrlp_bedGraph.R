@@ -1,5 +1,7 @@
+#!/usr/bin/env Rscript 
+
 args<-commandArgs(TRUE)
-#setwd("/Volumes/admin/Analysis/31_20201123_nucMACC_heatmap/data/bigwigs_subNucs/")
+
 library(rtracklayer)
 
 input<-import.bedGraph(args[1])

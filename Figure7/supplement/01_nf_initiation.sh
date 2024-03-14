@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 AnalysisDir=/Users/admin/Analysis/R001_nucMacc/
 cd $AnalysisDir
 

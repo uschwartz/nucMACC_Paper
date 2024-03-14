@@ -8,7 +8,8 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(warning = FALSE)
-work.path<- "~/Analysis/R001_nucMacc/manuscript_figures/Fig3/ChIP_atlas/profiles/"
+USER<-Sys.info()["user"]
+work.path<- paste0("/home/",USER,"/nucMACC_Paper/data/R001_nucMacc/manuscript_figures/Fig5/ChIP_atlas/profiles/")
 knitr::opts_knit$set(root.dir =work.path)
 #setwd(work.path)
 ```
@@ -21,8 +22,7 @@ library(pheatmap)
 library(RColorBrewer)
 ```
 
-##Import data
-
+## Import data
 ```{r import}
 peaks<-read.delim(file="../../../Fig2/ChIP_atlas/data/M1BP/GSE101554_S2_M1BP_ChIP_peaks.bed",
                   header=F)
@@ -31,12 +31,9 @@ head(peaks)
 rownames(peaks)<-paste(paste(peaks$V1,peaks$V2, sep=":"),peaks$V3,sep="-")
 peaks.sort<-peaks[order(peaks$V5, decreasing = T),]
 
-
 ### load gene sorting of heatmap
 heatmap.list<-read.delim("M1BP/sortedRegions_Heatmap.txt")
 head(heatmap.list)
-
-
 
 heat.sorted.na<-heatmap.list[match(rownames(peaks.sort),
                          as.character(heatmap.list$name)),]
@@ -49,18 +46,12 @@ heat.sorted<-heat.sorted.na[!is.na(match(rownames(peaks.sort),
 
 head(heat.sorted)
 
-
 ## load heatmap
 heat.val<-read.delim("M1BP/values_Heatmap.txt", skip=2)
 row.names(heat.val)<-as.character(heatmap.list$name)
-
 heat.val.sort<-heat.val[as.character(heat.sorted$name),]
-
 head(heat.val.sort[,1:10])
-
 ```
-
-
 ## Analysis
 
 ```{r Analysis}
@@ -69,22 +60,18 @@ head(heat.val.sort[,1:10])
 unstable.nucMACC.col<-grep("unstable",colnames(heat.val.sort), value = T)
 noncan.nucMACC.col<-grep("noncan",colnames(heat.val.sort), value = T)
 
-######################### get Profile ######################
-
-##  unstable
+# get profiles
+# for unstable nucleosomes
 heat.sub.unstable<-heat.val.sort[,unstable.nucMACC.col[50:249]]
 colnames(heat.sub.unstable)<-c("- 1 kb", rep(".",99),"center", rep(".",98),"+ 1 kb")
-
 profile.heat.unstable<-apply(heat.sub.unstable,2,function(x) mean(x,na.rm = T))
 
-##  noncan
+# for noncanonical nucleosomes
 heat.sub.noncan<-heat.val.sort[,noncan.nucMACC.col[50:249]]
 colnames(heat.sub.noncan)<-c("- 1 kb", rep(".",99),"center", rep(".",98),"+ 1 kb")
-
 profile.heat.noncan<-apply(heat.sub.noncan,2,function(x) mean(x,na.rm = T))
 
-
-## loess smoothing
+# loess smoothing
 smoothData<-function(pos=pos,profile){
     df<-data.frame(pos, profile=as.numeric(profile))
 
@@ -97,7 +84,6 @@ y.noncan<-smoothData(seq(-1000,1000-10,10)+5, profile.heat.noncan)
 y.unstable<-smoothData(seq(-1000,1000-10,10)+5, profile.heat.unstable)
 
 pdf("M1BP/profile_unstable_noncan.pdf", width = 4, height=3)
-
     plot(seq(-1000,1000-10,10)+5, 
          smoothData(seq(-1000,1000-10,10)+5, profile.heat.unstable),
          type="l", ylim=c(min(c(y.unstable,y.noncan)),max(c(y.unstable,y.noncan))),
@@ -106,18 +92,10 @@ pdf("M1BP/profile_unstable_noncan.pdf", width = 4, height=3)
     lines(seq(-1000,1000-10,10)+5, 
          smoothData(seq(-1000,1000-10,10)+5, profile.heat.noncan),
          lwd=2, col="#984EA3")
-
 dev.off()
-
-
-
 ```
-
-
-##Session info
+## Session info
 ```{r info}
 sessionInfo()
 ```
-
-
 

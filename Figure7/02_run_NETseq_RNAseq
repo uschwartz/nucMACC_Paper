@@ -1,16 +1,16 @@
-ProjectDir=/Users/admin/Analysis/S009_Rap1_rDNA
+#!/usr/bin/env bash
 
-AnalysisDir=$ProjectDir/analysis/05_NETseq_mRNAseq
+ProjectDir=/home/$USER/nucMACC_Paper/
+DataDir=/home/$USER/nucMACC_Paper/data/S009_Rap1_rDNA
+AnalysisDir=$ProjectDir/05_NETseq_mRNAseq
 
 cd $ProjectDir
 
 
-
-
 nextflow run ~/00_scripts/nextflow/RNAseq/main.nf  \
-	--fastqPath $ProjectDir/data/NET_and_mRNA_seq/raw/fastqs/pooled_fastq \
+	--fastqPath $DataDir/data/NET_and_mRNA_seq/raw/fastqs/pooled_fastq \
 	--outPath $AnalysisDir \
-	--STARidxPath ~/Annotation/yeast/STARidx \
-	--gtfPath ~/Annotation/yeast/nextflow \
+	--STARidxPath $ProjectDir/data/yeast/STARidx \
+	--gtfPath $ProjectDir/data/yeast/ \
 	--gtfFile all_genes.gtf  \
-        -w $AnalysisDir/work
+    -w $AnalysisDir/work

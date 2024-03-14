@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 AnalysisDir="/Volumes/PromisePegasus/_Research_/nucMACC_H2AZ"
 bw=$AnalysisDir"/TSSplots/"
 

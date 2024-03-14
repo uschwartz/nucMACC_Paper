@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 AnalysisDir=~/Analysis/NETseq/
 DataDir=$AnalysisDir"data"
 OutDir=$AnalysisDir"Pausing_Profile_sub"

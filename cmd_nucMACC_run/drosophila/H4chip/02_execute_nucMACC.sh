@@ -1,16 +1,14 @@
-AnalysisDir=/Users/admin/Analysis/R001_nucMacc
-AnnoDir=/Users/admin/Annotation/Drosophila_melanogaster_UCSC_dm3/Bowtie2Index
+#!/usr/bin/env bash
 
-
-##run script CHANGED FEATURECOUNTS
+AnalysisDir=/home/$USER/nucMACC_Paper/data
+AnnoDir=/home/$USER/nucMACC_Paper/data/Bowtie2Index
 
 cd $AnalysisDir
 
-nextflow run  ~/00_scripts/nextflow/nucMACC \
---csvInput './script/H4chip/additionalFiles/H4ChIP_input.csv' \
---outDir 'H4_ChIP_v2.1_featureCOUNTS' \
+nextflow run nucMACC \
+--csvInput $AnalysisDir'/script/H4chip/additionalFiles/H4ChIP_input.csv' \
+--outDir $AnalysisDir'/H4_ChIP/' \
 --genomeIdx $AnnoDir'/genome' \
 --genomeSize 162367812 \
---genome $AnnoDir'/genome.fa' \
---blacklist $AnalysisDir'/data/Annotation/dm3-blacklistChromosomes.bed' \
--w ./work_H4_v2.1 -resume
+--genome $AnalysisDir'/genome.fa' \
+--blacklist $AnalysisDir'/dm3-blacklistChromosomes.bed' 

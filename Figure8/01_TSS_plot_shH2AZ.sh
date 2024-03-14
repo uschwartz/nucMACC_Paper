@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 AnnoPath="/Users/admin/Annotation/GRCh38/"
 AnalysisDir="/Volumes/PromisePegasus/_Research_/nucMACC_H2AZ"
 genomINFO=$AnalysisDir"/script/addData/chrom_Sizes.txt"

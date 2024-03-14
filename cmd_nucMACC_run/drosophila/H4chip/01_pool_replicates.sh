@@ -1,4 +1,6 @@
-AnalysisDir=/Users/admin/Analysis/R001_nucMacc
+#!/usr/bin/env bash
+
+AnalysisDir=/home/$USER/nucMACC_Paper/
 
 cd $AnalysisDir/data/H4/
 

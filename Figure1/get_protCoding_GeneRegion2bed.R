@@ -1,4 +1,9 @@
-setwd("/Volumes/admin//Analysis/R001_nucMacc/manuscript_figures/Fig1/data/expression/")
+#!/usr/bin/env Rscript 
+
+USER<-Sys.info()["user"]
+pathSTD<-paste0("/home/",USER,"/nucMACC_Paper/data/manuscript_figures/Fig1/data/expression/")
+
+setwd(pathSTD)
 
 ## load gtf
 gtf<-read.delim("dm3.refGene.gtf", header = F)

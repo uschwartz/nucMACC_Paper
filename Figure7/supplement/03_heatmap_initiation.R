@@ -1,11 +1,11 @@
+#!/usr/bin/env Rscript 
+
 setwd("~/Analysis/R001_nucMacc/manuscript_figures/Fig6/Initiation/")
 
 library(stringr)
 
-
 dirs<-list.dirs()
 profiles<-list.files(pattern=".txt",recursive = T)
-
 
 hyper<-list()
 hypo<-list()
@@ -22,7 +22,6 @@ for(i in profiles){
     hypo[[str_split_i(i,"/",1)]]<-mx.norm["hypo_TSS.bed",]
 }
 
-
 mx.hyper<-do.call(rbind,hyper)
 mx.hypo<-do.call(rbind,hypo)
 
@@ -32,11 +31,12 @@ colnames(mx.hypo)<-rep("",100)
 colnames(mx.hypo)[c(1,50,100)]<-c("-0.5kb","TSS","0.5kb")
 
 pdf("hypo_plusOne.pdf", width = 4, height = 3)
-    pheatmap::pheatmap(mx.hypo, scale = "none", cluster_rows = F, cluster_cols = F,
-                   breaks = seq(1,12,length.out = 101), border_color = NA)
+pheatmap::pheatmap(mx.hypo, scale = "none", cluster_rows = F, cluster_cols = F,
+                    breaks = seq(1,12,length.out = 101), border_color = NA)
 dev.off()
 
 pdf("hyper_plusOne.pdf", width = 4, height = 3)
     pheatmap::pheatmap(mx.hyper, scale = "none", cluster_rows = F, cluster_cols = F,
-                   breaks = seq(1,12,length.out = 101), border_color = NA)
+                        breaks = seq(1,12,length.out = 101), border_color = NA)
 dev.off()
+

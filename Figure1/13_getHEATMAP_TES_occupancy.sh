@@ -1,4 +1,6 @@
-AnalysisDir=~/Analysis/R001_nucMacc
+#!/usr/bin/env bash
+
+AnalysisDir=/home/$USER/nucMACC_Paper
 DataDir=$OutDir"/data"
 
 OutDir=$AnalysisDir"/manuscript_figures/Fig1/"

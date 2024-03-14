@@ -8,30 +8,27 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(warning = FALSE)
-work.path<- "~/Analysis/R001_nucMacc/manuscript_figures/Fig3/ChIP_atlas/profiles/"
+USER<-Sys.info()["user"]
+work.path<- paste0("/home/",USER,"/nucMACC_Paper/data/R001_nucMacc/manuscript_figures/Fig5/ChIP_atlas/profiles/")
 knitr::opts_knit$set(root.dir =work.path)
 #setwd(work.path)
 ```
 
 ## Dependencies & Libraries
 
-#### Load packages
+#### Load package
 ```{r libraries, message=FALSE}
 library(RColorBrewer)
 ```
 
-##Import data
-
+## Import data
 ```{r import}
 # load profile
 m1bp<-read.delim("M1BP/values_Profile.txt")
 head(m1bp[,1:5])
-
 ```
 
-
 ## Analysis
-
 ```{r m1bp}
 #get conditions from profile
 H4.1.5<-grep("1.5U",m1bp$bin.labels, value = T)
@@ -40,7 +37,6 @@ H4.25<-grep("_25U",m1bp$bin.labels, value = T)
 H4.6.25<-grep("_6.25U",m1bp$bin.labels, value = T)
 
 row.names(m1bp)<-as.character(m1bp$bin.labels)
-
 center.pos<-which(colnames(m1bp)=="tick")
 
 start.plot<-c(-1000)
@@ -70,9 +66,8 @@ pdf("profile_m1bp_subNucs.pdf", width = 5, height=4)
                col = c("#800026","#E31A1C", "#FD8D3C", "#FED976"), lwd=2,
                inset=c(-0.5,0), xpd=TRUE)
 dev.off()
-
-
 ```
+### AbdA
 
 ```{r AbdA}
 abda<-read.delim("AbdA//values_Profile.txt")
@@ -85,7 +80,6 @@ H4.25<-grep("_25U",abda$bin.labels, value = T)
 H4.6.25<-grep("_6.25U",abda$bin.labels, value = T)
 
 row.names(abda)<-as.character(abda$bin.labels)
-
 center.pos<-which(colnames(abda)=="tick")
 
 start.plot<-c(-1000)
@@ -102,9 +96,6 @@ smoothData<-function(pos=pos,profile){
     sm<-predict(lo.fit, pos)
     return(sm)
 }
-
-
-
 
 pdf("profile_abda_subNucs.pdf", width = 5, height=4)
     par(mar=c(5.1, 4.1, 4.1, 7.1))
@@ -127,9 +118,8 @@ pdf("profile_abda_subNucs.pdf", width = 5, height=4)
                col = c("#800026","#E31A1C", "#FD8D3C", "#FED976"), lwd=2,
                inset=c(-0.5,0), xpd=TRUE)
 dev.off()
-
-
 ```
+### ZKSCAN-3
 
 ```{r zkscan3}
 zkscan3<-read.delim("ZKSCAN3/values_Profile.txt")
@@ -142,7 +132,6 @@ H4.25<-grep("_25U",zkscan3$bin.labels, value = T)
 H4.6.25<-grep("_6.25U",zkscan3$bin.labels, value = T)
 
 row.names(zkscan3)<-as.character(zkscan3$bin.labels)
-
 center.pos<-which(colnames(zkscan3)=="tick")
 
 start.plot<-c(-1000)
@@ -154,14 +143,10 @@ profile.index<- (center.pos+start.plot/10+1):(center.pos+end.plot/10)
 ## loess smoothing
 smoothData<-function(pos=pos,profile){
     df<-data.frame(pos, profile=as.numeric(profile))
-
     lo.fit<-loess(profile~pos,df,span = 0.3)
     sm<-predict(lo.fit, pos)
     return(sm)
 }
-
-
-
 
 pdf("profile_zkscan3_subNucs.pdf", width = 5, height=4)
     par(mar=c(5.1, 4.1, 4.1, 7.1))
@@ -184,9 +169,8 @@ pdf("profile_zkscan3_subNucs.pdf", width = 5, height=4)
                col = c("#800026","#E31A1C", "#FD8D3C", "#FED976"), lwd=2,
                inset=c(-0.5,0), xpd=TRUE)
 dev.off()
-
-
 ```
+### MSL-1
 
 ```{r msl1}
 msl1<-read.delim("MSL-1//values_Profile.txt")
@@ -199,7 +183,6 @@ H4.25<-grep("_25U",msl1$bin.labels, value = T)
 H4.6.25<-grep("_6.25U",msl1$bin.labels, value = T)
 
 row.names(msl1)<-as.character(msl1$bin.labels)
-
 center.pos<-which(colnames(msl1)=="tick")
 
 start.plot<-c(-1000)
@@ -211,14 +194,10 @@ profile.index<- (center.pos+start.plot/10+1):(center.pos+end.plot/10)
 ## loess smoothing
 smoothData<-function(pos=pos,profile){
     df<-data.frame(pos, profile=as.numeric(profile))
-
     lo.fit<-loess(profile~pos,df,span = 0.3)
     sm<-predict(lo.fit, pos)
     return(sm)
 }
-
-
-
 
 pdf("profile_msl1_subNucs.pdf", width = 5, height=4)
     par(mar=c(5.1, 4.1, 4.1, 7.1))
@@ -241,15 +220,9 @@ pdf("profile_msl1_subNucs.pdf", width = 5, height=4)
                col = c("#800026","#E31A1C", "#FD8D3C", "#FED976"), lwd=2,
                inset=c(-0.5,0), xpd=TRUE)
 dev.off()
-
-
 ```
 
-
-##Session info
+## Session info
 ```{r info}
 sessionInfo()
 ```
-
-
-

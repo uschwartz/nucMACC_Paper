@@ -1,10 +1,10 @@
+#!/usr/bin/env Rscript 
+
 setwd("~/Analysis/R001_nucMacc/manuscript_figures/Fig6/heatShock_SAGA//")
 
 library(stringr)
 
-
 profiles<-list.files(pattern=".txt",recursive = T)
-
 
 hyper_n<-list()
 hypo_n<-list()
@@ -25,7 +25,6 @@ for(i in profiles){
     hypo_hs[[str_split_i(i,"/",1)]]<-mx.hs["hypo_TSS.bed",]
 }
 
-
 mx.hyper_n<-do.call(rbind,hyper_n)
 mx.hypo_n<-do.call(rbind,hypo_n)
 mx.hyper_hs<-do.call(rbind,hyper_hs)
@@ -42,25 +41,21 @@ colnames(mx.hypo_hs)<-rep("",100)
 colnames(mx.hypo_hs)[c(1,50,100)]<-c("-0.5kb","TSS","0.5kb")
 
 pdf("hypo_plusOne_hs.pdf", width = 4, height = 1.5)
-    pheatmap::pheatmap(mx.hypo_hs, scale = "none", cluster_rows = F, cluster_cols = F,
-                       breaks = seq(1,15,length.out = 101),border_color = NA)
+pheatmap::pheatmap(mx.hypo_hs, scale = "none", cluster_rows = F, cluster_cols = F,
+                    breaks = seq(1,15,length.out = 101),border_color = NA)
 dev.off()
 
-
-
 pdf("hyper_plusOne_hs.pdf", width = 4, height = 1.5)
-    pheatmap::pheatmap(mx.hyper_hs, scale = "none", cluster_rows = F, cluster_cols = F,
-                       breaks = seq(1,15,length.out = 101),border_color = NA)
+pheatmap::pheatmap(mx.hyper_hs, scale = "none", cluster_rows = F, cluster_cols = F,
+                    breaks = seq(1,15,length.out = 101),border_color = NA)
 dev.off()
 
 pdf("hypo_plusOne_n.pdf", width = 4, height = 1.5)
 pheatmap::pheatmap(mx.hypo_n, scale = "none", cluster_rows = F, cluster_cols = F,
-                   breaks = seq(1,15,length.out = 101),border_color = NA)
+                breaks = seq(1,15,length.out = 101),border_color = NA)
 dev.off()
-
-
 
 pdf("hyper_plusOne_n.pdf", width = 4, height = 1.5)
 pheatmap::pheatmap(mx.hyper_n, scale = "none", cluster_rows = F, cluster_cols = F,
-                   breaks = seq(1,15,length.out = 101),border_color = NA)
+                    breaks = seq(1,15,length.out = 101),border_color = NA)
 dev.off()

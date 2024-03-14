@@ -8,7 +8,8 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(warning = FALSE)
-work.path<- "~/Analysis/R001_nucMacc/manuscript_figures/Fig2/ChIP_atlas/profiles/"
+USER<-Sys.info()["user"]
+work.path<- paste0("/home/",USER,"/nucMACC_Paper/data/R001_nucMacc/manuscript_figures/Fig5/ChIP_atlas/profiles/")
 knitr::opts_knit$set(root.dir =work.path)
 #setwd(work.path)
 ```
@@ -21,7 +22,7 @@ library(pheatmap)
 library(RColorBrewer)
 ```
 
-##Import data
+## Import data
 
 ```{r import}
 peaks<-read.delim(file="../data/M1BP/GSE101554_S2_M1BP_ChIP_peaks.bed",
@@ -31,12 +32,9 @@ head(peaks)
 rownames(peaks)<-paste(paste(peaks$V1,peaks$V2, sep=":"),peaks$V3,sep="-")
 peaks.sort<-peaks[order(peaks$V5, decreasing = T),]
 
-
 ### load gene sorting of heatmap
 heatmap.list<-read.delim("M1BP/sortedRegions_Heatmap_nucMACCscore.txt")
 head(heatmap.list)
-
-
 
 heat.sorted.na<-heatmap.list[match(rownames(peaks.sort),
                          as.character(heatmap.list$name)),]
@@ -49,17 +47,13 @@ heat.sorted<-heat.sorted.na[!is.na(match(rownames(peaks.sort),
 
 head(heat.sorted)
 
-
 ## load heatmap
 heat.val<-read.delim("M1BP/values_Heatmap_nucMACCscores.txt", skip=2)
 row.names(heat.val)<-as.character(heatmap.list$name)
 
 heat.val.sort<-heat.val[as.character(heat.sorted$name),]
-
 head(heat.val.sort[,1:10])
-
 ```
-
 
 ## Analysis
 
@@ -69,13 +63,11 @@ head(heat.val.sort[,1:10])
 scores.nucMACC.col<-grep("nucMACC_scores",colnames(heat.val.sort), value = T)
 
 ######################### get Profile ######################
-
 ##  nucMACC
 heat.mono<-heat.val.sort[,scores.nucMACC.col[50:249]]
 colnames(heat.mono)<-c("- 1 kb", rep(".",99),"center", rep(".",98),"+ 1 kb")
 
 profile.heat<-apply(heat.mono,2,function(x) mean(x,na.rm = T))
-
 
 ## loess smoothing
 smoothData<-function(pos=pos,profile){
@@ -95,12 +87,8 @@ pdf("M1BP/profile_nucMACC_scores.pdf", width = 4, height=3)
    
 dev.off()
 
-
-
 ## heatmap
 colmonoMACC<-colorRampPalette(c("#984EA3","#FFFFFF","#1B9E77"))(100)
-
-
 
 pheatmap(heat.mono[1:1000,], scale="none",
          breaks=seq(-0.3,0.3,length.out = 101),
@@ -109,9 +97,6 @@ pheatmap(heat.mono[1:1000,], scale="none",
           color = colmonoMACC,
          na_col = "#FFFFFF")
 dev.off()
-
-
-
 
 png("M1BP/nucMACCscores_heatmap_sorted.png",res = 700, width = 1000, height = 1000)
     
@@ -137,15 +122,8 @@ png("M1BP/nucMACCscores_heatmap_unsorted.png",res = 700, width = 1000, height = 
          na_col = "#FFFFFF")
     
 dev.off()
-
-
-
-
-
 ```
-
-
-##Session info
+## Session info
 ```{r info}
 sessionInfo()
 ```

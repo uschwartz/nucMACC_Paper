@@ -1,15 +1,15 @@
-cd /Volumes/PromisePegasus/_Research_/nucMACC_H2AZ
-AnnoPath="/Users/admin/Annotation/GRCh38/"
+#!/usr/bin/env bash
 
+projectDir=/home/$USER/nucMACC_Paper
+AnalysisDir=/home/$USER/nucMACC_Paper/data/nucMACC_H2AZ
+AnnoDir=/home/$USER/nucMACC_Paper/data
 
-
-nextflow run ~/00_scripts/nextflow/nucMACC \
+nextflow run nucMACC \
 --analysis 'nucMACC' \
---csvInput 'script/addData/samples_WC_nucMACC.csv' \
---outDir WC_nucMACC_out \
+--csvInput $AnalysisDir'/samples_WC_nucMACC.csv' \
+--outDir $AnalysisDir'/WC_nucMACC_out' \
 --genomeSize  2913022398 \
---genome $AnnoPath'/GRCh38.primary_assembly_plus_humRibosomal.fa' \
+--genome $AnnoDir'/GRCh38/GRCh38.primary_assembly_plus_humRibosomal.fa' \
 --bamEntry \
---TSS $AnnoPath'/nextflow/protein_coding.gtf' \
---blacklist $AnnoPath'/blacklist_comp_ENCFF356LFX_MT_rDNA_chr_nonCanonical.bed'
--resume
+--TSS $AnnoDir'/GRCh38/protein_coding.gtf' \
+--blacklist $AnnoDir'/GRCh38/blacklist_comp_ENCFF356LFX_MT_rDNA_chr_nonCanonical.bed'

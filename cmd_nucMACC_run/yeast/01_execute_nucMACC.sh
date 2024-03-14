@@ -1,12 +1,13 @@
-AnalysisDir=/Users/mac-pro3/Analysis/MNase_Yeast/H4_IP
-AnnoDir=/Users/mac-pro3/Analysis/MNase_Yeast/annotation
+#!/usr/bin/env bash
+
+AnalysisDir=/home/$USER/nucMACC_Paper/data/MNase_Yeast
+AnnoDir=$AnalysisDir'/annotation'
 Input=$AnalysisDir'/data'
 OutDir=$AnalysisDir'/results'
 
-
 cd $AnalysisDir
 
-nextflow run  ~/Analysis/nucMACC \
+nextflow run  nucMACC \
 --csvInput $Input'/input_pooled.csv' \
 --outDir $OutDir \
 --genomeIdx $AnnoDir'/Bowtie2Index/genome' \
@@ -14,4 +15,3 @@ nextflow run  ~/Analysis/nucMACC \
 --genome $AnnoDir'/Bowtie2Index/genome.fa' \
 --TSS $AnnoDir'/Yeast_TSS.bed' \
 --blacklist $AnnoDir'/blacklistChromosomes.bed' \
--w ./work_H4_IP -resume

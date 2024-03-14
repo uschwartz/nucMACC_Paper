@@ -8,12 +8,13 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(warning = FALSE)
-work.path <- "~/Analysis/MNase_Yeast/scripts/Rscripts/Figures/Fig4/"
+USER<-Sys.info()["user"]
+data.path <- paste0("/home/",USER,"/nucMACC_Paper/data/MNase_Yeast")
+work.path<- paste0("/home/",USER,"/nucMACC_Paper/data/MNase_Yeast/scripts/Rscripts/Figures/Fig4")
 #dir.create(work.path, showWarnings = F)
 knitr::opts_knit$set(root.dir =work.path)
 #setwd(work.path)
 #getwd()
-
 ```
 
 ## Dependencies & Libraries
@@ -29,34 +30,32 @@ library(stringr)
 library(tidyverse)
 ```
 
-
 ## H4_ChIP sub
 ```{r import and run H4_ChIP sub}
-#get fragment sizes
-#input
-input<-read.delim("../../../../../MNase_Yeast/H4_IP/results/RUN/10_sub-nucMACC/sub-nucMACC_result_table.tsv")
-TSS.gr <-import.bed("../../../../../MNase_Yeast/annotation/Yeast_TSS.bed")
-TSS <-read.delim("../../../../../MNase_Yeast/annotation/Yeast_TSS.bed", header=FALSE)
-TPM<-read.delim("../../../../..//MNase_Yeast/annotation/TPM_expr_strength.txt")
+# get fragment sizes
+# input
+input<-read.delim(paste0(data.path,"/H4_IP/results/RUN/10_sub-nucMACC/sub-nucMACC_result_table.tsv"))
+TSS.gr <-import.bed(paste0(data.path,"/annotation/Yeast_TSS.bed"))
+TSS <-read.delim(paste0(data.path,"/annotation/Yeast_TSS.bed", header=FALSE))
+TPM<-read.delim(paste0(data.path,"/annotation/TPM_expr_strength.txt"))
 
-#Subsetting TSS according strand orientation
+# Subsetting TSS according to strand orientation
 TSS.minus.gr<-TSS.gr[TSS.gr@strand=="-"]
 TSS.plus.gr<-TSS.gr[TSS.gr@strand=="+"]
 
 length(TSS.minus.gr)+length(TSS.plus.gr)
 
-#Calculate new start position for minus strand
+# Calculate new start position for minus strand
 TSS.minus.cal.gr<-TSS.minus.gr
 TSS.minus.cal.gr@ranges<-IRanges(TSS.minus.cal.gr@ranges@start-149, TSS.minus.cal.gr@ranges@start)
 TSS.minus.gr@ranges
 TSS.minus.cal.gr@ranges
 
-#Calculate new end position for plus strand
+# Calculate new end position for plus strand
 TSS.plus.cal.gr<-TSS.plus.gr
 TSS.plus.cal.gr@ranges<-IRanges(TSS.plus.cal.gr@ranges@start, TSS.plus.cal.gr@ranges@start+149)
 TSS.plus.gr@ranges
 TSS.plus.cal.gr@ranges
-
 
 all.gr<-GRanges(input)
 
@@ -64,25 +63,19 @@ all.gr<-GRanges(input)
 unstable.gr<-GRanges(subset(input, category=="un-stable"))
 noncan.gr<-GRanges(subset(input, category=="non-canonical"))
 
-
-#find overlaps unstable-accessible
+# find overlaps unstable-accessible
 ovrlp.unstable.minus<-findOverlaps(unstable.gr, TSS.minus.cal.gr, minoverlap = 100 )
 ovrlp.unstable.plus<-findOverlaps(unstable.gr, TSS.plus.cal.gr, minoverlap = 100 )
 
-
-#find overlaps unstable-accessible
+# find overlaps unstable-accessible
 ovrlp.noncan.minus<-findOverlaps(noncan.gr, TSS.minus.cal.gr, minoverlap = 100 )
 ovrlp.noncan.plus<-findOverlaps(noncan.gr, TSS.plus.cal.gr, minoverlap = 100 )
 
-
-
-#Percentage of overlappe with +1 nuc
+# Percentage of overlapping with +1 nuc
 (length(ovrlp.unstable.minus)+length(ovrlp.unstable.plus))/length(unstable.gr)*100
 (length(ovrlp.noncan.minus)+length(ovrlp.noncan.plus))/length(noncan.gr)*100
 
-
-
-#### Peak Anno
+# Peak Anno
 db <- TxDb.Scerevisiae.UCSC.sacCer3.sgdGene
 
 sub.nucs <- list(all_nucMACC=all.gr,
@@ -93,39 +86,32 @@ sub.nucs.anno <- lapply(sub.nucs, annotatePeak, TxDb=db,
                     "Exon", "Intron","5UTR", "3UTR","Downstream", "Intergenic"),
                         tssRegion=c(-300, 100), verbose=FALSE)
 
-
-#Hist DistToTSS unstable
+# Hist DistToTSS unstable
 unstable.anno<-sub.nucs.anno[["unstable"]]@anno
 unstable.prom<-unstable.anno[unstable.anno$annotation=="Promoter"]
 hist(unstable.prom$distanceToTSS, breaks=50)
 
-#Hist DistToTSS noncan
+# Hist DistToTSS noncan
 noncan.anno<-sub.nucs.anno[["noncan"]]@anno
 noncan.prom<-noncan.anno[noncan.anno$annotation=="Promoter"]
 hist(noncan.prom$distanceToTSS, breaks=50)
 
-
-#extract genes Promoter
+# extract genes Promoter
 unstable.prom.genes<-unstable.prom$geneId
 noncan.prom.genes<-noncan.prom$geneId
 prom.genes<-c(unstable.prom$geneId, noncan.prom$geneId)
 
-#extract genes Exon
+# extract genes Exon
 unstable.ex<-unstable.anno[str_extract(unstable.anno$annotation,"Exon") %in% "Exon"]
 noncan.ex<-noncan.anno[str_extract(noncan.anno$annotation,"Exon") %in% "Exon"]
-
 exon.genes<-c(unstable.ex$geneId, noncan.ex$geneId)
 
-
-#extract genes Intron
+# extract genes Intron
 unstable.in<-unstable.anno[str_extract(unstable.anno$annotation,"Intron") %in% "Intron"]
 noncan.in<-noncan.anno[str_extract(noncan.anno$annotation,"Intron") %in% "Intron"]
-
 intron.genes<-c(unstable.in$geneId, noncan.in$geneID)
 
-
-
-#Sort TPM 
+# Sort TPM 
 unstable.genes<-unstable.anno$geneId
 TPM$Nuc.Cat<-ifelse(TPM$gene %in% unstable.genes, "un-stable", "non-canonical")
 
@@ -136,8 +122,6 @@ TPM$Feature[TPM$gene %in% intron.genes]<-"Intron"
 
 table(TPM$Feature)
 TPM.feat<-TPM[TPM$Feature=="Promoter",]
-
-
 
 g<-ggplot(TPM.feat, aes(x=Nuc.Cat, y=log2.TPM.1., fill=as.factor(Nuc.Cat)))+
   geom_violin(width=1.0, alpha=0.7) +
@@ -154,36 +138,27 @@ shapiro.test(TPM.feat$log2.TPM.1.[TPM.feat$Nuc.Cat=="un-stable"])
 shapiro.test(TPM.feat$log2.TPM.1.[TPM.feat$Nuc.Cat=="non-canonical"])
 
 test <- wilcox.test(TPM.feat$log2.TPM.1.[TPM.feat$Nuc.Cat=="un-stable"],TPM.feat$log2.TPM.1.[TPM.feat$Nuc.Cat=="non-canonical"])
-
 p.value<-test$p.value
-
 write.table(p.value,file="p_value_promoter_expr_sub.txt")
 
 pdf("Expr_promoter_sub.pdf", width = 6, height = 4)
-        print(g)
+    print(g)
 dev.off()
-
-
-        
-        
-        
-#Annotate +1 nucleosome 
+  
+# Annotate +1 nucleosome 
 TSS.annotated <- annotatePeak(TSS.gr,TxDb=db, 
-                         genomicAnnotationPriority = c("Promoter", 
-                    "Exon", "Intron","5UTR", "3UTR","Downstream", "Intergenic"),
-                        tssRegion=c(-300, 100), verbose=FALSE)
-
+                                genomicAnnotationPriority = c("Promoter", 
+                                "Exon", "Intron","5UTR", "3UTR","Downstream", "Intergenic"),
+                                tssRegion=c(-300, 100), verbose=FALSE)
 
 TSS.anno <- TSS.annotated@anno
 length(TSS.anno)
 TSS.prom <- TSS.anno[TSS.anno$annotation=="Promoter"]
 length(TSS.prom)
 
-
 hist(TSS.prom$distanceToTSS, breaks=50)
 
-
-#Annotate calculated +1 nuc (minus strand)
+# Annotate calculated +1 nuc (minus strand)
 TSS.minus.annotated <- annotatePeak(TSS.minus.cal.gr,TxDb=db, 
                          genomicAnnotationPriority = c("Promoter", 
                     "Exon", "Intron","5UTR", "3UTR","Downstream", "Intergenic"),
@@ -195,43 +170,32 @@ length(TSS.minus.anno)
 TSS.minus.prom <- TSS.minus.anno[TSS.minus.anno$annotation=="Promoter"]
 length(TSS.minus.prom)
 
-
 hist(TSS.minus.prom$distanceToTSS, breaks=50)
 
-
-#Annotate calculated +1 nuc (plus strand)
+# Annotate calculated +1 nuc (plus strand)
 TSS.plus.annotated <- annotatePeak(TSS.plus.cal.gr,TxDb=db, 
                          genomicAnnotationPriority = c("Promoter", 
                     "Exon", "Intron","5UTR", "3UTR","Downstream", "Intergenic"),
                         tssRegion=c(-300, 100), verbose=FALSE)
-
 
 TSS.plus.anno <- TSS.plus.annotated@anno
 length(TSS.plus.anno)
 TSS.plus.prom <- TSS.plus.anno[TSS.plus.anno$annotation=="Promoter"]
 length(TSS.plus.prom)
 
-
 hist(TSS.plus.prom$distanceToTSS, breaks=50)
-
-
-
-
-
-
 ```
 
 ```{r filer overlapping nucs}
-#unstable
+# unstable
 unstable.minus.ovrl<-unstable.gr[ovrlp.unstable.minus@from]
 unstable.plus.ovrl<-unstable.gr[ovrlp.unstable.plus@from]
 
-#noncan
+# noncanonical 
 noncan.minus.ovrl<-noncan.gr[ovrlp.noncan.minus@from]
 noncan.plus.ovrl<-noncan.gr[ovrlp.noncan.plus@from]
-
-        
-#Annotate +1 nucleosome 
+      
+# Annotate +1 nucleosome 
 unstable.minus.ovrl.anno <- annotatePeak(unstable.minus.ovrl,TxDb=db, 
                          genomicAnnotationPriority = c("Promoter", 
                     "Exon", "Intron","5UTR", "3UTR","Downstream", "Intergenic"),
@@ -252,13 +216,11 @@ noncan.plus.ovrl.anno <- annotatePeak(noncan.plus.ovrl,TxDb=db,
                     "Exon", "Intron","5UTR", "3UTR","Downstream", "Intergenic"),
                         tssRegion=c(-300, 100), verbose=FALSE)
 
-#Filter genes
+# Filter genes
 unstable.ovrl.genes<-c(unstable.plus.ovrl.anno@anno$geneId, unstable.minus.ovrl.anno@anno$geneId)
 noncan.ovrl.genes<-c(noncan.plus.ovrl.anno@anno$geneId, noncan.minus.ovrl.anno@anno$geneId)
 
 ovrl.genes<-c(unstable.ovrl.genes, noncan.ovrl.genes)
-
 TPM.feat.flt<-TPM.feat[TPM.feat$gene %in% ovrl.genes,]
-
-write.table(TPM.feat.flt, file="../../annotation/Mastertable_overlapping.txt", quote = FALSE)
+write.table(TPM.feat.flt, file=paste0(data.path,"/annotation/Mastertable_overlapping.txt", quote = FALSE)
 ```

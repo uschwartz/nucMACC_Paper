@@ -1,10 +1,11 @@
+#!/usr/bin/env bash
+
 AnalysisDir='/Users/admin/Analysis/R001_nucMacc/manuscript_figures/Fig7'
 OutDir=$AnalysisDir"/RSCprofiles"
-
 mkdir -p $OutDir
-
 cd $AnalysisDir
-############################ "RSC3" ############################
+
+#1. RSC3
 
 mkdir $OutDir"/RSC3/"
 
@@ -28,8 +29,7 @@ plotHeatmap -m $OutDir"/RSC3/cmpt_mx.gz" \
       -out $OutDir'/RSC3/DefaultHeatmap_HEAT.png' \
       --outFileNameMatrix $OutDir'/RSC3/values_Heatmap.txt'
 
-
-############################ "RSC9" ############################
+#2. RSC9
 
 mkdir $OutDir"/RSC9/"
 
@@ -50,7 +50,7 @@ plotProfile -m $OutDir"/RSC9/cmpt_mx.gz" \
         --outFileNameData $OutDir'/RSC9/values_Profile.txt'
 
 
-############################ "RSC1" ############################
+#3. RSC1
 
 mkdir $OutDir"/RSC1/"
 
@@ -70,9 +70,7 @@ plotProfile -m $OutDir"/RSC1/cmpt_mx.gz" \
         -out $OutDir'/RSC1/DefaultHeatmap.png' \
         --outFileNameData $OutDir'/RSC1/values_Profile.txt'
 
-
-
-############################ "RSC58" ############################
+#4. RSC58
 
 mkdir $OutDir"/RSC58/"
 

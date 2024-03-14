@@ -1,11 +1,14 @@
+#!/usr/bin/env Rscript 
+
 # Load Packages -----------------------------------------------------------
+
 library(ggplot2)
 library(RColorBrewer)
 
+# experiment with the multiplier to find the perfect position -------------
 
 give.n <- function(x){
   return(c(y = median(x)*1.05, label = length(x))) 
-  # experiment with the multiplier to find the perfect position
 }
 
 # Import Data -------------------------------------------------------------

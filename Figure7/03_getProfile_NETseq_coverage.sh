@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 AnalysisDir=~/Analysis/NETseq/
 DataDir=$AnalysisDir"/data"
 OutDir=$AnalysisDir"NETseq_Profile_hyper_hypo_neu"

@@ -1,6 +1,8 @@
-AnalysisDir=~/Analysis/R001_nucMacc
-OutDir=$AnalysisDir"/manuscript_figures/Fig2/"
+#!/usr/bin/env bash
 
+AnalysisDir=/home/$USER/nucMACC_Paper/data/R001_nucMacc
+OutDir=$AnalysisDir"/manuscript_figures/Fig2/"
+DataDir=$OutDir"/data"
 
 mkdir -p $OutDir"/DNaseHS/"
 cd $OutDir"/DNaseHS/"
@@ -8,7 +10,7 @@ cd $OutDir"/DNaseHS/"
 
 ######## DNaseHS
 DNase_bw=$OutDir"/data/"
-beds=$AnalysisDir"/H4_ChIP_v2.1_featureCOUNTS/RUN/09_nucMACC"
+beds=$AnalysisDir"/H4_ChIP/RUN/09_nucMACC"
 
 ###compute matrix
 computeMatrix reference-point -S $DNase_bw"/DNase_S2DHS-seq_r1.bw" \

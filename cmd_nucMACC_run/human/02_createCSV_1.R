@@ -1,10 +1,14 @@
-pathSTD<-"/Volumes/PromisePegasus/_Research_/nucMACC_H2AZ/"
+#!/usr/bin/env Rscript 
+
+USER<-Sys.info()["user"]
+pathSTD<-paste0("/home/",USER,"/nucMACC_Paper/data/nucMACC_H2AZ/")
+
 library(stringr)
 library(tidyverse)
+
 setwd(pathSTD)
+
 files<-list.files("data/", recursive = T) 
-
-
 
 fwd<-grep("1.fastq.gz",files, value = T)
 rev<-grep("2.fastq.gz",files, value = T)
@@ -36,4 +40,4 @@ write.csv(input, row.names = F,
 input.shh2az<-df %>% filter(grepl("A_shH2AZ",Sample_Name))
 
 write.csv(input.shh2az, row.names = F,
-          file="script/addData//samples_WC_shH2AZ.csv", quote = F)
+          file="script/addData/samples_WC_shH2AZ.csv", quote = F)

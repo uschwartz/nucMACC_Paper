@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 AnalysisDir='/Users/admin/Analysis/R001_nucMacc/manuscript_figures/Fig7'
 OutDir=$AnalysisDir"/in_vitro"
 

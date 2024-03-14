@@ -8,7 +8,8 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(warning = FALSE)
-work.path<- "~//Analysis/R001_nucMacc/manuscript_figures/Fig3/Exp"
+USER<-Sys.info()["user"]
+work.path<- paste0("/home/",USER,"/nucMACC_Paper/data/R001_nucMacc/manuscript_figures/Fig3/Exp/")
 dir.create(work.path, showWarnings = F)
 knitr::opts_knit$set(root.dir =work.path)
 #setwd(work.path)

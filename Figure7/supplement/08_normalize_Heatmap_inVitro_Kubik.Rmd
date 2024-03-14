@@ -10,7 +10,6 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(warning = FALSE)
 work.path<- "/Users//admin//Analysis/R001_nucMacc/manuscript_figures/Fig7/in_vitro_Kubik/"
 knitr::opts_knit$set(root.dir =work.path)
-
 ```
 
 ## Dependencies & Libraries
@@ -23,36 +22,30 @@ library(ggpubr)
 library(stringr)
 ```
 
-##Import data
-
+## Import data
 ```{r import}
-
-#### normalization
-
+# normalization
 normMx<-function(x){
     DNA.mean <- apply(x, MARGIN = 1,function(x) mean(x))
-
     DNA.high.cov<-which(DNA.mean>1) 
     heat.val <- x[DNA.high.cov,]
     DNA.mean.filt<-DNA.mean[DNA.high.cov]
-    
     norm.mx<-heat.val/DNA.mean.filt
     return(norm.mx)
 }
-
 
 cond<-str_remove_all(list.dirs(recursive = F),"\\./")
 
 for(i in cond){
     print(i)
-    ## load heatmap
+    # load heatmap
     heat.val<-read.delim(paste0(i,"/values_Heatmap.txt"), skip=2)
     #shift the colnames correctly
     colnames(heat.val)<-colnames(heat.val)[c(3:ncol(heat.val),1:2)]
     
-    #get samples from heatmap
+    # get samples from heatmap
     
-    #sub-nucleosomes
+    # sub-nucleosomes
     sub.col<-grep("subNucs",colnames(heat.val), value = T)
     #mono-nucleosomes
     mono.col<-grep("monoNucs",colnames(heat.val), value = T)
@@ -62,35 +55,32 @@ for(i in cond){
     names(borders)<-str_split_i(grep("bed",colnames(heat.val), value = T),
                         ".bed.",1)
 
-    #NDR
+    # NDR
     NDR.idx<-1:(borders["TSS_NDR_Kubik"])
-    #unstable
+    # unstable
     unstable.idx<-(borders["TSS_NDR_Kubik"]+1):(borders["TSS_NDR_Kubik"]+borders["TSS_unstable_Kubik"])
 
-    
-    ######################### get Profile ######################
-    ## unstable sub
+    # get Profile
+    # unstable sub
     unstbl.sub<-heat.val[unstable.idx,sub.col]
     colnames(unstbl.sub)<-c("-1000", rep(".",99),"TSS", rep(".",98),"1000")
     
-    ## NDR sub
+    # NDR sub
     NDR.sub<-heat.val[NDR.idx,sub.col]
     colnames(NDR.sub)<-c("-1000", rep(".",99),"TSS", rep(".",98),"1000")
     
-    ## unstable mono
+    # unstable mono
     unstbl.mono<-heat.val[unstable.idx,mono.col]
     colnames(unstbl.mono)<-c("-1000", rep(".",99),"TSS", rep(".",98),"1000")
     
-    ## NDR mono
+    # NDR mono
     NDR.mono<-heat.val[NDR.idx,mono.col]
     colnames(NDR.mono)<-c("-1000", rep(".",99),"TSS", rep(".",98),"1000")
-    
     
     norm.list<-lapply(list("unstable_mono"=unstbl.mono,"NDR_mono"=NDR.mono,
                           "unstable_sub"=unstbl.sub,
                           "NDR_sub"=NDR.sub),
                      normMx)
-
 
     profile.list<-lapply(norm.list,
                      function(x) apply(x,2,mean))
@@ -107,7 +97,6 @@ for(i in cond){
                lwd=2, bty="n", col = c("#2166AC","#A6761D"))
     dev.off()
 
-
     yRange<-range(c( profile.list[["unstable_sub"]],profile.list[["NDR_sub"]]))
     
     pdf(paste0(i,"/profile_",i,"_sub.pdf"), width = 4.5, height=3.5)
@@ -119,24 +108,10 @@ for(i in cond){
         legend("bottomleft",legend = c("unstable","NDR"),
                lwd=2, bty="n", col = c("#2166AC","#A6761D"))
     dev.off()
-            
-    
-
-
 }
-
-
-
-
-
-
 ```
 
-
-##Session info
+## Session info
 ```{r info}
 sessionInfo()
 ```
-
-
-

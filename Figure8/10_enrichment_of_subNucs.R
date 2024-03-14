@@ -1,9 +1,11 @@
+#!/usr/bin/env Rscript 
+
 library(ggplot2)
 library(ggpubr)
+
 # Import Data -------------------------------------------------------------
+
 setwd("/Volumes/PromisePegasus/_Research_/nucMACC_H2AZ/TSSplots/")
-
-
 
 df<-data.frame(numb.unstableTSS=c(61,680),
            condition=c("normal", "shH2A.Z"))

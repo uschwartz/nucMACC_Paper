@@ -8,95 +8,78 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(warning = FALSE)
-#work.path<- "~/Analysis/R001_nucMacc/manuscript_figures/Fig1/heatmaps/monoNucs_geneRegion/"
-work.path<- "/Volumes/admin//Analysis/R001_nucMacc/manuscript_figures/Fig1/heatmaps/monoNucs_geneRegion/"
-knitr::opts_knit$set(root.dir =work.path)
+USER<-Sys.info()["user"]
+work.path<- paste0("/home/",USER,"/nucMACC_Paper/R001_nucMacc/manuscript_figures/Fig1/heatmaps/monoNucs_geneRegion/")
+knitr::opts_knit$set(root.dir = work.path)
 #setwd(work.path)
 date.x<-Sys.Date()
 ```
 
 ## Dependencies & Libraries
-
 #### Load packages
 ```{r libraries, message=FALSE}
 library(pheatmap)
 library(RColorBrewer)
 library(ggpubr)
 ```
-
-##Import data
-
+## Import data
 ```{r import}
 df.rpkm<-read.delim(file="../../data/expression/RPKM_protCod_genes.txt")
-
 head(df.rpkm)
 
-### load gene sorting of heatmap
+# load gene sorting of heatmap
 genes.list<-read.delim("sortedRegions_Heatmap_bed.txt")
 head(genes.list)
 
 genes.heat.sorted.na<-genes.list[match(as.character(df.rpkm$genes), 
                                        as.character(genes.list$name), nomatch = ),]
-#remove NAs
+# remove NAs
 table(is.na(match(as.character(df.rpkm$genes), as.character(genes.list$name))))
 
 genes.heat.sorted<-genes.heat.sorted.na[!is.na(match(as.character(df.rpkm$genes),
                                     as.character(genes.list$name))),]
-
 head(genes.heat.sorted)
-
-
-## load heatmap
+# load heatmap
 heat.val<-read.delim("values_Heatmap_bed.txt", skip=2)
 row.names(heat.val)<-as.character(genes.list$name)
-
 heat.val.sort<-heat.val[as.character(genes.heat.sorted$name),]
-
 head(heat.val.sort[,1:10])
-
 ```
-
-
 ## Analysis
 
 ```{r Analysis}
-#get samples from heatmap
-#H3 mono.nucMACC
+# get samples from heatmap
+# H3 mono.nucMACC
 H3.mono.nucMACC.col<-grep("H3_nucMACC_scores",colnames(heat.val.sort), value = T)
 
 heat.mono.H3<-heat.val.sort[,H3.mono.nucMACC.col]
 colnames(heat.mono.H3)<-c("-500", rep(".",49),"TSS", 
                           rep(".",99),"TES",rep(".",48),"500" )
 
-#H4 mono.nucMACC
+# H4 mono.nucMACC
 H4.mono.nucMACC.col<-grep("H4_nucMACC_scores",colnames(heat.val.sort), value = T)
 
 heat.mono.H4<-heat.val.sort[,H4.mono.nucMACC.col]
 colnames(heat.mono.H4)<-c("-500", rep(".",49),"TSS", 
                           rep(".",99),"TES",rep(".",48),"500" )
 
-## heatmap
+# heatmap
 colmonoMACC<-colorRampPalette(c("#984EA3","#FFFFFF","#1B9E77"))(100)
 
-
-
-######################### get Profile ######################
-
-#split genes by expression
+# get Profile
+# split genes by expression
 genes.split<-split(df.rpkm$refSeq,f = df.rpkm$expr.strength)
 
-#convert NAs to 0
+# convert NAs to 0
 woNA.H3<-heat.mono.H3
 woNA.H3[is.na(woNA.H3)]<-0
 
-##  H3.nucMACC
+# H3.nucMACC
 genes.split<-split(df.rpkm$genes,f = df.rpkm$expr.strength)
 
 profile.list<-lapply(genes.split, function(x) 
     apply(woNA.H3[which(rownames(woNA.H3) %in% x),c(-200)],
                                       2,function(x) mean(x,na.rm = T)))
-
-
 
 pdf("profile_H3_monoNucs.pdf", width = 4, height=4)
     plot(seq(-500,500,length.out = 199), profile.list[["silent"]], type="l", 
@@ -111,7 +94,7 @@ pdf("profile_H3_monoNucs.pdf", width = 4, height=4)
     axis(1, at=c(-500,-250,250,500), labels=c("-500","TSS","TES","500"))
 dev.off()
 
-
+# heatmap
 pheatmap(heat.mono.H3[1:2500,], scale="none",
          breaks=seq(-0.3,0.3,length.out = 101),
          show_colnames = T, show_rownames = F,
@@ -120,23 +103,17 @@ pheatmap(heat.mono.H3[1:2500,], scale="none",
          na_col = "#FFFFFF")
 dev.off()
 
-
-
 png("H3_mono-nucMACC_heatmap_white.png",res = 700, width = 2000, height = 2800)
-    
     pheatmap(heat.mono.H3, scale="none",
          breaks=seq(-0.3,0.3,,length.out = 101),
          show_colnames = T, show_rownames = F,
          color = colmonoMACC,
          cluster_rows = F, cluster_cols = F,
          na_col = "#FFFFFF")
-    
 dev.off()
 
-
-
-#### H4
-#convert NAs to 0
+# H4
+# convert NAs to 0
 woNA.H4<-heat.mono.H4
 woNA.H4[is.na(woNA.H4)]<-0
 
@@ -157,8 +134,7 @@ pdf("profile_H4_monoNucs.pdf", width = 4, height=3)
       axis(1, at=c(-500,-250,250,500), labels=c("-500","TSS","TES","500"))
 dev.off()
 
-
-
+# heatmap
 pheatmap(heat.mono.H4[1:2500,], scale="none",
          breaks=seq(-0.5,0.5,length.out = 101),
          show_colnames = T, show_rownames = F,
@@ -167,27 +143,18 @@ pheatmap(heat.mono.H4[1:2500,], scale="none",
          na_col = "#FFFFFF")
 dev.off()
 
-
 png("H4_mono-nucMACC_heatmap_white.png",res = 700, width = 2000, height = 2800)
-    
-    pheatmap(heat.mono.H4, scale="none",
+pheatmap(heat.mono.H4, scale="none",
          breaks=seq(-0.3,0.3,length.out = 101),
          show_colnames = T, show_rownames = F,
          color = colmonoMACC,
          cluster_rows = F, cluster_cols = F,
          na_col = "#FFFFFF")
-    
 dev.off()
-
-
-
 ```
 
-
-##Session info
+## Session info
 ```{r info}
 sessionInfo()
 ```
-
-
 

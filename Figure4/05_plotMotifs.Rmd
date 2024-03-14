@@ -8,10 +8,10 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(warning = FALSE)
-work.path<- "~/Analysis/R001_nucMacc/manuscript_figures/Fig4/motifs/"
+USER<-Sys.info()["user"]
+work.path<- paste0("/home/",USER,"/nucMACC_Paper/data/R001_nucMacc/manuscript_figures/Fig4/motifs/")
 knitr::opts_knit$set(root.dir =work.path)
 ```
-
 
 ## Dependencies & Libraries
 
@@ -24,7 +24,6 @@ library(stringr)
 ```{r code}
 ndr.txt<-read.delim("NDR/knownResults.txt")
 unstabl.txt<-read.delim("unstableNuc//knownResults.txt")
-
 
 head(unstabl.txt)
 head(ndr.txt)
@@ -56,22 +55,13 @@ g<-ggplot(df, aes(class,Motif.Name, color=(-log10(exp(Log.P.value))),
 
 print(g)
 
+# Save bubble plot for the motifs
 pdf("bubblePlot_Motifs.pdf", width=6.5, height=3)
     print(g)
 dev.off()
-
 ```
-
-
-```{r save tables, eval=FALSE, echo=FALSE }
-
-```
-
-
 
 ##Session info
 ```{r info}
 sessionInfo()
-
-
 ```

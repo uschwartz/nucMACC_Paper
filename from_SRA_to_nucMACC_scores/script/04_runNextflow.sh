@@ -1,11 +1,14 @@
-MY_PWD=$1
-cd $MY_PWD
+#!/usr/bin/env bash
 
-nextflow run nucMACC \
+MY_PWD=$(pwd)
+
+# Run QC for MNase-seq samples
+
+/home/tools/nextflow run nucMACC \
 --analysis 'MNaseQC' \
---csvInput 'data/samples.csv' \
+--csvInput $MY_PWD'/data/samples.csv' \
 --outDir QC_out \
 --genomeIdx $MY_PWD'/data/Bowtie2Index/genome' \
---genomeSize 14372600200 \
+--genomeSize 162367812 \
 --publishBamFlt \
 --TSS $MY_PWD'/data/genes.gtf' 

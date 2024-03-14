@@ -1,14 +1,14 @@
+#!/usr/bin/env Rscript 
+
 # Load Packages -----------------------------------------------------------
-
-
 
 library(ggplot2)
 library(RColorBrewer)
 
+# experiment with the multiplier to find the perfect position  -----------
 
 give.n <- function(x){
   return(c(y = median(x)*1.05, label = length(x))) 
-  # experiment with the multiplier to find the perfect position
 }
 
 # Import Data -------------------------------------------------------------
@@ -24,11 +24,10 @@ genes.unstable <- genes.list[which(genes.list$deepTools_group=="unstable_TSS_TTS
 row.names(heat.val)<-as.character(genes.list$name)
 colnames(heat.val)
 
-
-
 NDR <- heat.val[which(genes.list$deepTools_group=="NDR_TSS_TTS.bed"),1:315]
 unstable <- heat.val[which(genes.list$deepTools_group=="unstable_TSS_TTS.bed"),1:315]
-#convert NAs to 0
+
+# convert NAs to 0
 woNA.NDR<-NDR
 woNA.NDR[is.na(woNA.NDR)]<-0
 woNA.unstable<-unstable
@@ -63,7 +62,6 @@ mean(pausing.unstable)
 
 median(pausing.NDR)
 median(pausing.unstable)
-
 
 pausing <- c(pausing.NDR,pausing.unstable)
 cat <- c(rep("NDR",length(pausing.NDR)),rep("unstable",length(pausing.unstable)))

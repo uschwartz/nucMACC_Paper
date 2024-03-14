@@ -8,7 +8,8 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(warning = FALSE)
-work.path<- "~/Analysis/R001_nucMacc/manuscript_figures/Fig2/ChIP_atlas/profiles/"
+USER<-Sys.info()["user"]
+work.path<- paste0("/home/",USER,"/nucMACC_Paper/data/R001_nucMacc/manuscript_figures/Fig5/ChIP_atlas/profiles/")
 knitr::opts_knit$set(root.dir =work.path)
 #setwd(work.path)
 ```
@@ -20,17 +21,16 @@ knitr::opts_knit$set(root.dir =work.path)
 library(RColorBrewer)
 ```
 
-##Import data
+## Import data
 
 ```{r import}
 # load profile
 m1bp<-read.delim("M1BP/values_Profile.txt")
 head(m1bp[,1:5])
-
 ```
-
-
 ## Analysis
+
+### M1BP
 
 ```{r m1bp}
 #get conditions from profile
@@ -70,9 +70,8 @@ pdf("profile_m1bp_monoNucs.pdf", width = 5, height=4)
                col = c("#6E016B","#896BB1", "#9EBCDA", "#D2E6E6"), lwd=2,
                inset=c(-0.5,0), xpd=TRUE)
 dev.off()
-
-
 ```
+### AbdA
 
 ```{r AbdA}
 abda<-read.delim("AbdA//values_Profile.txt")
@@ -104,8 +103,6 @@ smoothData<-function(pos=pos,profile){
 }
 
 
-
-
 pdf("profile_abda_monoNucs.pdf", width = 5, height=4)
     par(mar=c(5.1, 4.1, 4.1, 7.1))
     plot(pos,
@@ -127,9 +124,9 @@ pdf("profile_abda_monoNucs.pdf", width = 5, height=4)
                col = c("#6E016B","#896BB1", "#9EBCDA", "#D2E6E6"), lwd=2,
                inset=c(-0.5,0), xpd=TRUE)
 dev.off()
-
-
 ```
+### ZKSCAN-3
+
 ```{r zkscan3}
 zkscan3<-read.delim("ZKSCAN3/values_Profile.txt")
 head(zkscan3[,1:5])
@@ -159,9 +156,6 @@ smoothData<-function(pos=pos,profile){
     return(sm)
 }
 
-
-
-
 pdf("profile_zkscan3_monoNucs.pdf", width = 5, height=4)
     par(mar=c(5.1, 4.1, 4.1, 7.1))
     plot(pos,
@@ -183,9 +177,8 @@ pdf("profile_zkscan3_monoNucs.pdf", width = 5, height=4)
                col = c("#6E016B","#896BB1", "#9EBCDA", "#D2E6E6"), lwd=2,
                inset=c(-0.5,0), xpd=TRUE)
 dev.off()
-
-
 ```
+### MSL-1
 
 ```{r msl1}
 msl1<-read.delim("MSL-1//values_Profile.txt")
@@ -216,9 +209,6 @@ smoothData<-function(pos=pos,profile){
     return(sm)
 }
 
-
-
-
 pdf("profile_msl1_monoNucs.pdf", width = 5, height=4)
     par(mar=c(5.1, 4.1, 4.1, 7.1))
     plot(pos,
@@ -240,15 +230,10 @@ pdf("profile_msl1_monoNucs.pdf", width = 5, height=4)
                col = c("#6E016B","#896BB1", "#9EBCDA", "#D2E6E6"), lwd=2,
                inset=c(-0.5,0), xpd=TRUE)
 dev.off()
-
-
 ```
 
-
-##Session info
+## Session info
 ```{r info}
 sessionInfo()
 ```
-
-
 

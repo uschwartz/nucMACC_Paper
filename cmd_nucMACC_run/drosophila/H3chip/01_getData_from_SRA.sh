@@ -1,4 +1,6 @@
-AnalysisDir=$1
+#!/usr/bin/env bash
+
+AnalysisDir=/home/$USER/nucMACC_Paper
 OutDir=$AnalysisDir/data/H3
 
 # download raw data of GEO accession GSE78984 at https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE78984

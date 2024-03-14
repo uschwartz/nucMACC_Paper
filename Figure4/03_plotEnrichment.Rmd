@@ -8,10 +8,10 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(warning = FALSE)
-work.path<- "~/Analysis/R001_nucMacc/manuscript_figures/Fig4/metascape/"
+USER<-Sys.info()["user"]
+work.path<- paste0("/home/",USER,"/nucMACC_Paper/data/R001_nucMacc/manuscript_figures/Fig4/metascape/")
 knitr::opts_knit$set(root.dir =work.path)
 ```
-
 
 ## Dependencies & Libraries
 
@@ -36,7 +36,6 @@ slct.res$Description<-factor(slct.res$Description,
          levels = slct.res$Description[order(slct.res$Log.q.value.,slct.res$LogP, 
                                              decreasing = T)])
 
-
 g<-ggplot(slct.res, aes((-Log.q.value.),Description, color=(-Log.q.value.),
                size=NumberOfGenes))+
     geom_point()+theme_bw()+
@@ -48,19 +47,9 @@ print(g)
 pdf("bubblePlot_Enrichment.pdf", width=6.5, height=3)
     print(g)
 dev.off()
-
 ```
-
-
-```{r save tables, eval=FALSE, echo=FALSE }
-
-```
-
-
 
 ##Session info
 ```{r info}
 sessionInfo()
-
-
 ```
