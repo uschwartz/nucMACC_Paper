@@ -1,6 +1,9 @@
 #!/usr/bin/env Rscript 
 
-setwd("~/Analysis/R001_nucMacc/manuscript_figures/Fig6/Initiation/")
+USER <- Sys.info()["user"]
+path <- paste0("/home/",USER,"/nucMACC_Paper/data/R001_nucMacc/")
+
+setwd(paste0(path,"/manuscript_figures/Fig6/Initiation/"))
 
 library(stringr)
 

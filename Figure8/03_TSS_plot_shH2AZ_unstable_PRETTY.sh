@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-AnalysisDir="/Volumes/PromisePegasus/_Research_/nucMACC_H2AZ"
+ProjectDir=/home/$USER/nucMACC_Paper/data/GRCh38
+AnalysisDir="/home/$USER/nucMACC_Paper/data/nucMACC_H2AZ"
 bw=$AnalysisDir"/TSSplots/"
 
 mkdir -p $AnalysisDir/TSSplots/shH2AZ_unstable_PRETTY/data

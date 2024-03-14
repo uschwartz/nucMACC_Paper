@@ -1,6 +1,8 @@
 #!/usr/bin/env Rscript 
 
-setwd("~/Analysis/R001_nucMacc/manuscript_figures/Fig6/heatShock_SAGA//")
+USER<-Sys.info()["user"]
+path <- paste0("/home/",USER,"/nucMACC_Paper/data/R001_nucMacc/manuscript_figures/Fig6/heatShock_SAGA/")
+setwd(path)
 
 library(stringr)
 
@@ -12,7 +14,6 @@ hyper_hs<-list()
 hypo_hs<-list()
 
 for(i in profiles){
-    #i="Bdf1/Bdf1_Profile.txt"
     dat.table<-read.delim(i)
     mx<-dat.table[-1,3:102]
     mx.n<-mx[1:2,]

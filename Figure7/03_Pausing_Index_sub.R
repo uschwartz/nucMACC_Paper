@@ -1,5 +1,8 @@
 #!/usr/bin/env Rscript 
 
+path<-paste0("/home/",USER,"/nucMACC_Paper/data/NETseq")
+setwd(path)
+
 # Load Packages -----------------------------------------------------------
 
 library(ggplot2)
@@ -12,7 +15,6 @@ give.n <- function(x){
 }
 
 # Import Data -------------------------------------------------------------
-setwd("/Users/mac-pro3/Analysis/NETseq/")
 
 dark2 <- c(RColorBrewer::brewer.pal(8, "Dark2"))
 
@@ -40,11 +42,11 @@ min.value <- min(NDR.Median,unstable.Median)
 max.value <- max(NDR.Median,unstable.Median)
 
 pdf("Pausing_Profile_sub/Median_profile.pdf", width = 6, height = 5)
-  plot(seq(1:length(NDR.Median)),NDR.Median, type = "l", xaxt = "n", lwd=2.5, col = dark2[1], xlab = "Position", ylab = "Median",ylim=c(min.value,max.value))
-  lines(seq(1:length(unstable.Median)),unstable.Median, col =dark2[2], lwd=2.5)
-  axis(1, at=c(0,50,65,265,315), labels=c("-500","TSS","unscaled","TES","500"))
-  legend(220, 2.7, legend=c("NDR", "unstable"),
-       col=c(dark2[1], dark2[2]), lty=c(1,1), cex=0.8,box.lty=0)
+plot(seq(1:length(NDR.Median)),NDR.Median, type = "l", xaxt = "n", lwd=2.5, col = dark2[1], xlab = "Position", ylab = "Median",ylim=c(min.value,max.value))
+lines(seq(1:length(unstable.Median)),unstable.Median, col =dark2[2], lwd=2.5)
+axis(1, at=c(0,50,65,265,315), labels=c("-500","TSS","unscaled","TES","500"))
+legend(220, 2.7, legend=c("NDR", "unstable"),
+        col=c(dark2[1], dark2[2]), lty=c(1,1), cex=0.8,box.lty=0)
 dev.off()
 
 # pausing Index NDR

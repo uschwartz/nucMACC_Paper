@@ -11,10 +11,7 @@ knitr::opts_chunk$set(warning = FALSE)
 USER<-Sys.info()["user"]
 data.path <- paste0("/home/",USER,"/nucMACC_Paper/data/MNase_Yeast")
 work.path<- paste0("/home/",USER,"/nucMACC_Paper/data/MNase_Yeast/scripts/Rscripts/Figures/Fig4")
-#dir.create(work.path, showWarnings = F)
 knitr::opts_knit$set(root.dir =work.path)
-#setwd(work.path)
-#getwd()
 ```
 
 ## Dependencies & Libraries

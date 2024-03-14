@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 export MY_PWD=$(pwd)
 
 ./script/01_fetch_annotation.sh $MY_PWD

@@ -1,7 +1,9 @@
 #!/usr/bin/env Rscript 
 
 library(pheatmap)
-setwd("/Volumes/PromisePegasus/_Research_/nucMACC_H2AZ/TSSplots/shH2AZ_unstable_PRETTY//")
+
+path<-paste0("/home/",USER,"/nucMACC_Paper/data/nucMACC_H2AZ/TSSplots/shH2AZ_unstable_PRETTY")
+setwd(path)
 
 # Import Data -------------------------------------------------------------
 

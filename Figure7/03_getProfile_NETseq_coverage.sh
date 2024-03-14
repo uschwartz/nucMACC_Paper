@@ -15,8 +15,6 @@ computeMatrix reference-point -S $DataDir"/NETseq_coverage.bw" \
       --outFileSortedRegions $OutDir"/sortedRegions.bed"\
       -b 300 -a 300 --smartLabels -p 5
 
-
-
 plotHeatmap -m $OutDir"/computeMatrix2plot_5scale.txt.gz" \
      -out $OutDir"/DefaultHeat_5scale.pdf" \
      --outFileSortedRegions $OutDir"/sortedRegions_Heatmap.bed" \

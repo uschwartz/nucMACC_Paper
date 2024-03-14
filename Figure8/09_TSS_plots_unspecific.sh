@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-AnalysisDir="/Volumes/PromisePegasus/_Research_/nucMACC_H2AZ"
+AnalysisDir="/home/$USER/nucMACC_Paper/data/nucMACC_H2AZ"
 bw=$AnalysisDir"/TSSplots/"
 AnnoPath="/Users/admin/Annotation/GRCh38/"
 

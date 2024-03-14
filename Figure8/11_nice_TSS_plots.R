@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript 
 
-setwd("/Volumes/PromisePegasus/_Research_/nucMACC_H2AZ/TSSplots/")
+path<-paste0("/home/",USER,"/nucMACC_Paper/data/nucMACC_H2AZ/TSSplots")
+setwd(path)
 
 # mono-nucleosomes
 # 1. shH2A.Z

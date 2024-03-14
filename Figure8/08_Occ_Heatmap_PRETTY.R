@@ -2,9 +2,10 @@
 
 library(pheatmap)
 
-# Import Data -------------------------------------------------------------
+path<-paste0("/home/",USER,"/nucMACC_Paper/data/nucMACC_H2AZ/TSSplots/shH2AZ_unstable_PRETTY")
+setwd(path)
 
-setwd("/Volumes/PromisePegasus/_Research_/nucMACC_H2AZ/TSSplots/shH2AZ_unstable_PRETTY/")
+# Import Data -------------------------------------------------------------
 
 read.delim("data/values_Heatmap_occ.txt", header = F,nrows = 1)
 values <- read.delim("data/values_Heatmap_occ.txt", skip = 1 ,header = F)

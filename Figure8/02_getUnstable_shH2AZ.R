@@ -2,7 +2,8 @@
 
 # Import Data -------------------------------------------------------------
 
-setwd("/Volumes/PromisePegasus/_Research_/nucMACC_H2AZ/TSSplots/shH2AZ/data/")
+path<-paste0("/home/",USER,"/nucMACC_Paper/data/nucMACC_H2AZ/TSSplots/shH2AZ/data/")
+setwd(path)
 values <- read.delim("values_Heatmap_sub_bed.txt", skip = 1 ,header = F)
 regions <- read.delim("sortedRegions_Heatmap_sub_bed.txt")
 
@@ -10,7 +11,6 @@ regions <- read.delim("sortedRegions_Heatmap_sub_bed.txt")
 
 len_sub <- 120/10
 (ncol(values)-6)/2
-
 values.unstbl<-values[,187:ncol(values)]
 
 # set range -150 / +50 ---------------------------------------------------

@@ -6,8 +6,7 @@ AnalysisDir=$ProjectDir/05_NETseq_mRNAseq
 
 cd $ProjectDir
 
-
-nextflow run ~/00_scripts/nextflow/RNAseq/main.nf  \
+nextflow run uschwartz/RNAseq -r main  \
 	--fastqPath $DataDir/data/NET_and_mRNA_seq/raw/fastqs/pooled_fastq \
 	--outPath $AnalysisDir \
 	--STARidxPath $ProjectDir/data/yeast/STARidx \

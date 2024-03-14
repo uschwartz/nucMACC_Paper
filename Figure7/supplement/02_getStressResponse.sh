@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-AnalysisDir='/Users/admin/Analysis/R001_nucMacc/manuscript_figures/Fig7'
+AnalysisDir=/home/$USER/nucMACC_Paper/data/R001_nucMacc/manuscript_figures/Fig7
 OutDir=$AnalysisDir"/RSCprofiles"
 mkdir -p $OutDir
 cd $AnalysisDir

@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
 
-H3K4me3AnalysisDir='/Users/admin/Analysis/R001_nucMacc/manuscript_figures/Fig7'
+AnalysisDir=/home/$USER/nucMACC_Paper/data/R001_nucMacc/manuscript_figures/Fig7
 OutDir=$AnalysisDir"/histones"
 
 mkdir -p $OutDir
-
 cd $AnalysisDir
 
 #1. H3
 
-mkdir $OutDir"/H3/"
+mkdir $OutDir"/H3"
 
 computeMatrix reference-point -S data/histones/H3_rep2_MNase-ChIP-seq.bw \
     -R data/subNuc_TSS/NDR.bed data/subNuc_TSS/unstable.bed \
@@ -31,7 +30,7 @@ plotHeatmap -m $OutDir"/H3/cmpt_mx.gz" \
 
 #2. H3K4me3
 
-mkdir $OutDir"/H3K4me3/"
+mkdir $OutDir"/H3K4me3"
 
 computeMatrix reference-point -S data/histones/H3K4me3_rep2_MNase-ChIP-seq.bw \
     -R data/subNuc_TSS/NDR.bed data/subNuc_TSS/unstable.bed \
@@ -53,7 +52,7 @@ plotHeatmap -m $OutDir"/H3K4me3/cmpt_mx.gz" \
 
 #3. H2B
 
-mkdir $OutDir"/H2B/"
+mkdir $OutDir"/H2B"
 
 computeMatrix reference-point -S data/histones/H2B_rep1_MNase-ChIP-seq.bw \
     -R data/subNuc_TSS/NDR.bed data/subNuc_TSS/unstable.bed \
@@ -75,7 +74,7 @@ plotHeatmap -m $OutDir"/H2B/cmpt_mx.gz" \
 
 #4. H2AZ 
 
-mkdir $OutDir"/H2AZ/"
+mkdir $OutDir"/H2AZ"
 
 computeMatrix reference-point -S data/histones/Htz1_rep1_ChIP-exo.bw \
     -R data/subNuc_TSS/NDR.bed data/subNuc_TSS/unstable.bed \
